@@ -1,0 +1,14 @@
+{
+  "rtx-4090": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=RTX+4090&ref=nb_sb_noss"
+    }
+  ],
+  "rtx-4080-super": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=RTX+4080+Super&ref=nb_sb_noss"
+    }
+  ]
+}
