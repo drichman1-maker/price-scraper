@@ -1,26 +1,44 @@
 {
-  "macbook-air-13-m3-2024": [
+  "macbook-air-13-m5-512": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Air+13+M3&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/dp/MC6A4LL/A"
     }
   ],
-  "macbook-air-15-m3-2024": [
+  "macbook-air-13-m5-1tb": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Air+15+M3&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/dp/MC6B4LL/A"
     }
   ],
-  "macbook-pro-14-m4-pro": [
+  "macbook-air-13-m5-24gb": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M4&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/s?k=MacBook+Air+13+M5+24GB"
     }
   ],
-  "macbook-pro-16-m4-pro": [
+  "macbook-air-15-m5-512": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M4&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/dp/MC8D4LL/A"
+    }
+  ],
+  "macbook-air-15-m5-24gb": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Air+15+M5+24GB"
+    }
+  ],
+  "macbook-pro-14-m5": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/MP5X3LL/A"
+    }
+  ],
+  "macbook-pro-14-m5-1tb": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/MHWC3LL/A"
     }
   ]
 }
