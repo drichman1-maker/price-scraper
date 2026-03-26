@@ -1,0 +1,41 @@
+{
+  "_comment": "Example product mapping - save and upload as GitHub secret",
+  "macbook-air-13-m2-2024": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0B3C2R8MP"
+    },
+    {
+      "retailer": "ebay",
+      "url": "https://www.ebay.com/itm/EXAMPLE123"
+    }
+  ],
+  "macbook-air-15-m3-2024": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0CX23V2ZK"
+    }
+  ],
+  "macbook-pro-14-m3-pro": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0BSHF7WHW"
+    },
+    {
+      "retailer": "ebay",
+      "url": "https://www.ebay.com/itm/EXAMPLE456"
+    }
+  ],
+  "rtx-4090": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0BGJQ4TZP"
+    }
+  ],
+  "rtx-4080-super": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0BCSJ99K9"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "_comment": "Test products for local scraping - MacBook Air M3 and Pro M3",
+  "macbook-air-13-m3-2024": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0CX23V2ZK"
+    }
+  ],
+  "macbook-air-15-m3-2024": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0CX63GHT8"
+    }
+  ],
+  "macbook-pro-14-m3-pro": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0BSHF7WHW"
+    }
+  ],
+  "macbook-pro-16-m3-pro": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/dp/B0BSGNYQYV"
+    }
+  ]
+}

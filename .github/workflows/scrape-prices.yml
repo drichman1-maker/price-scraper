@@ -1,0 +1,102 @@
+name: Scrape Prices - Every 4 Hours
+
+on:
+  schedule:
+    # Run every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    - cron: '0 */4 * * *'
+  
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Which project to scrape'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - theresmac
+          - gpudrip
+          - both
+      use_proxy:
+        description: 'Use proxy service (ScraperAPI)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout scraper code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install chromium
+          python -m playwright install-deps chromium
+      
+      - name: Run scraper
+        env:
+          # Backend API URLs
+          THERESMAC_API_URL: ${{ secrets.THERESMAC_API_URL }}
+          GPUDRIP_API_URL: ${{ secrets.GPUDRIP_API_URL }}
+          
+          # API Keys for backend authentication
+          THERESMAC_API_KEY: ${{ secrets.THERESMAC_API_KEY }}
+          GPUDRIP_API_KEY: ${{ secrets.GPUDRIP_API_KEY }}
+          
+          # Affiliate IDs
+          AMAZON_AFFILIATE_ID: ${{ secrets.AMAZON_AFFILIATE_ID }}
+          EBAY_AFFILIATE_ID: ${{ secrets.EBAY_AFFILIATE_ID }}
+          
+          # Optional: ScraperAPI key for proxy service
+          SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+          
+          # Product mappings (JSON string)
+          THERESMAC_PRODUCTS_JSON: ${{ secrets.THERESMAC_PRODUCTS_JSON }}
+          GPUDRIP_PRODUCTS_JSON: ${{ secrets.GPUDRIP_PRODUCTS_JSON }}
+          
+        run: |
+          python run_scraper.py \
+            --project ${{ github.event.inputs.project || 'both' }} \
+            ${{ github.event.inputs.use_proxy == 'true' && '--proxy' || '' }} \
+            --output results.json
+      
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-results
+          path: results.json
+          retention-days: 7
+      
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "❌ Price scraper failed for ${{ github.event.inputs.project || 'both' }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwdn",
+                    "text": "*Price Scraper Failed*\nProject: ${{ github.event.inputs.project || 'both' }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
