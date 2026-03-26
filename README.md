@@ -1,16 +1,23 @@
 # Price Scraper for TheresMac & GPU Drip
 
-Automated price scraping using GitHub Actions + Playwright. Scrapes Amazon and eBay every 4 hours and updates backend APIs.
+Automated price scraping with admin dashboard. Scrapes Amazon and eBay every 4 hours and updates backend APIs.
+
+## Components
+
+1. **Scraper** (GitHub Actions) - Automated price scraping
+2. **Admin Dashboard** (React + Express) - Web UI for management and alerts
 
 ## Architecture
 
 ```
 GitHub Actions (cron) → Scraper Engine → Playwright → Amazon/eBay → Backend API
+                                        ↓
+                              Admin Dashboard (manual overrides, alerts)
 ```
 
 - **Free tier**: 2000 minutes/month (enough for 6x daily scrapes)
 - **Anti-bot**: User-agent rotation, stealth mode, optional proxy service
-- **Retries**: Automatic retry with exponential backoff
+- **Admin**: Web UI for manual price updates and sending price drop alerts
 
 ## Setup
 
@@ -157,12 +164,42 @@ schedule:
   - cron: '0 0 * * *'    # Once daily
 ```
 
-## Admin Terminal (Future)
+## Admin Dashboard
 
-When you build the admin dashboard:
-- Read/write product mappings
-- Manual price overrides
-- Scrape logs and history
-- Add new products (with URL mapping)
+The admin dashboard (`admin-dashboard/` folder) provides a web UI for:
 
-The scraper will continue working with the same API format.
+### Features
+- **Products View**: See all products, price history, last scraped time
+- **Send Alert Button**: Manually send price drop alerts to subscribers
+- **Manual Price Override**: Edit prices when scraper fails
+- **Scraper Logs**: View recent scraper runs and status
+- **Settings**: Change scrape frequency, enable/disable retailers
+
+### Running Admin Dashboard
+
+```bash
+cd admin-dashboard
+npm install
+npm run dev
+```
+
+Open http://localhost:5173
+
+### Deploying Admin Dashboard
+
+```bash
+cd admin-dashboard
+npm install
+npm run build
+fly deploy
+```
+
+### Admin Dashboard API
+
+The dashboard exposes these endpoints:
+- `POST /api/products/:id/price` - Manual price update
+- `POST /api/send-alert` - Send price drop alert
+- `POST /api/scraper/run` - Trigger manual scrape
+- `GET /api/scraper/logs` - View scraper logs
+
+See `admin-dashboard/README.md` for full details.
