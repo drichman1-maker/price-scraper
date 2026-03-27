@@ -40,5 +40,41 @@
       "retailer": "amazon",
       "url": "https://www.amazon.com/dp/MHWC3LL/A"
     }
+  ],
+  "macbook-pro-14-m5-pro": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Pro"
+    }
+  ],
+  "macbook-pro-14-m5-pro-1tb": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Pro+1TB"
+    }
+  ],
+  "macbook-pro-14-m5-max": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Max"
+    }
+  ],
+  "macbook-pro-16-m5-pro": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Pro"
+    }
+  ],
+  "macbook-pro-16-m5-pro-1tb": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Pro+1TB"
+    }
+  ],
+  "macbook-pro-16-m5-max": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Max"
+    }
   ]
 }

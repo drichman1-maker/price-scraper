@@ -47,6 +47,14 @@ jobs:
           python -m playwright install chromium
           python -m playwright install-deps chromium
       
+      - name: Check environment
+        run: |
+          echo "Checking environment variables..."
+          if [ -z "${{ secrets.THERESMAC_API_URL }}" ]; then echo "❌ THERESMAC_API_URL not set"; exit 1; fi
+          if [ -z "${{ secrets.THERESMAC_API_KEY }}" ]; then echo "❌ THERESMAC_API_KEY not set"; exit 1; fi
+          if [ -z "${{ secrets.THERESMAC_PRODUCTS_JSON }}" ]; then echo "❌ THERESMAC_PRODUCTS_JSON not set"; exit 1; fi
+          echo "✅ All required secrets are set"
+          
       - name: Run scraper
         env:
           # Backend API URLs
@@ -72,7 +80,10 @@ jobs:
           python run_scraper.py \
             --project ${{ github.event.inputs.project || 'both' }} \
             ${{ github.event.inputs.use_proxy == 'true' && '--proxy' || '' }} \
-            --output results.json
+            --output results.json || {
+              echo "❌ Scraper failed with exit code $?"
+              exit 1
+            }
       
       - name: Upload results artifact
         uses: actions/upload-artifact@v4

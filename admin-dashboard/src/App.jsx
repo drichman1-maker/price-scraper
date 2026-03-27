@@ -25,6 +25,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-air-13-m5-512',
     name: 'MacBook Air 13" M5 (512GB)',
     category: 'mac',
+    specs: { chip: 'M5', storage: '512GB SSD', ram: '16GB', display: '13.6"' },
     currentPrice: 1149,
     originalPrice: 1199,
     lowestPrice: 1099,
@@ -49,6 +50,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-air-13-m5-1tb',
     name: 'MacBook Air 13" M5 (1TB)',
     category: 'mac',
+    specs: { chip: 'M5', storage: '1TB SSD', ram: '16GB', display: '13.6"' },
     currentPrice: 1349,
     originalPrice: 1399,
     lowestPrice: 1299,
@@ -72,6 +74,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-air-15-m5-512',
     name: 'MacBook Air 15" M5 (512GB)',
     category: 'mac',
+    specs: { chip: 'M5', storage: '512GB SSD', ram: '16GB', display: '15.3"' },
     currentPrice: 1349,
     originalPrice: 1399,
     lowestPrice: 1299,
@@ -95,6 +98,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-air-15-m5-24gb',
     name: 'MacBook Air 15" M5 (24GB RAM)',
     category: 'mac',
+    specs: { chip: 'M5', storage: '512GB SSD', ram: '24GB', display: '15.3"' },
     currentPrice: 1549,
     originalPrice: 1599,
     lowestPrice: 1499,
@@ -117,6 +121,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-pro-14-m5',
     name: 'MacBook Pro 14" M5',
     category: 'mac',
+    specs: { chip: 'M5', storage: '512GB SSD', ram: '24GB', display: '14.2" XDR' },
     currentPrice: 1949,
     originalPrice: 1999,
     lowestPrice: 1899,
@@ -140,6 +145,7 @@ const MOCK_PRODUCTS = [
     id: 'macbook-pro-14-m5-1tb',
     name: 'MacBook Pro 14" M5 (1TB)',
     category: 'mac',
+    specs: { chip: 'M5', storage: '1TB SSD', ram: '32GB', display: '14.2" XDR' },
     currentPrice: 2349,
     originalPrice: 2399,
     lowestPrice: 2299,
@@ -158,6 +164,151 @@ const MOCK_PRODUCTS = [
       { name: 'Best Buy', price: 2399, inStock: true, url: 'https://bestbuy.com' },
     ],
     alerts: 14
+  },
+  {
+    id: 'macbook-pro-14-m5-pro',
+    name: 'MacBook Pro 14" M5 Pro (512GB)',
+    category: 'mac',
+    specs: { chip: 'M5 Pro', storage: '512GB SSD', ram: '24GB', display: '14.2" XDR' },
+    currentPrice: 2449,
+    originalPrice: 2499,
+    lowestPrice: 2399,
+    highestPrice: 2499,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 2499 },
+      { date: '2025-03-22', price: 2479 },
+      { date: '2025-03-24', price: 2449 },
+      { date: '2025-03-26', price: 2449 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 2449, inStock: true, url: 'https://amazon.com/dp/MQ0W3LL/A' },
+      { name: 'Apple', price: 2499, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 2449, inStock: true, url: 'https://bestbuy.com' },
+      { name: 'B&H', price: 2449, inStock: true, url: 'https://bhphotovideo.com' },
+    ],
+    alerts: 18
+  },
+  {
+    id: 'macbook-pro-14-m5-pro-1tb',
+    name: 'MacBook Pro 14" M5 Pro (1TB)',
+    category: 'mac',
+    specs: { chip: 'M5 Pro', storage: '1TB SSD', ram: '36GB', display: '14.2" XDR' },
+    currentPrice: 2849,
+    originalPrice: 2899,
+    lowestPrice: 2799,
+    highestPrice: 2899,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 2899 },
+      { date: '2025-03-22', price: 2879 },
+      { date: '2025-03-24', price: 2849 },
+      { date: '2025-03-26', price: 2849 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 2849, inStock: true, url: 'https://amazon.com/dp/MQ0X3LL/A' },
+      { name: 'Apple', price: 2899, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 2849, inStock: true, url: 'https://bestbuy.com' },
+    ],
+    alerts: 12
+  },
+  {
+    id: 'macbook-pro-14-m5-max',
+    name: 'MacBook Pro 14" M5 Max (1TB)',
+    category: 'mac',
+    specs: { chip: 'M5 Max', storage: '1TB SSD', ram: '36GB', display: '14.2" XDR' },
+    currentPrice: 3149,
+    originalPrice: 3199,
+    lowestPrice: 3099,
+    highestPrice: 3199,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 3199 },
+      { date: '2025-03-22', price: 3179 },
+      { date: '2025-03-24', price: 3149 },
+      { date: '2025-03-26', price: 3149 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 3149, inStock: true, url: 'https://amazon.com/dp/MQ0Y3LL/A' },
+      { name: 'Apple', price: 3199, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 3149, inStock: true, url: 'https://bestbuy.com' },
+    ],
+    alerts: 15
+  },
+  {
+    id: 'macbook-pro-16-m5-pro',
+    name: 'MacBook Pro 16" M5 Pro (512GB)',
+    category: 'mac',
+    specs: { chip: 'M5 Pro', storage: '512GB SSD', ram: '24GB', display: '16.2" XDR' },
+    currentPrice: 2749,
+    originalPrice: 2799,
+    lowestPrice: 2699,
+    highestPrice: 2799,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 2799 },
+      { date: '2025-03-22', price: 2779 },
+      { date: '2025-03-24', price: 2749 },
+      { date: '2025-03-26', price: 2749 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 2749, inStock: true, url: 'https://amazon.com/dp/MRW23LL/A' },
+      { name: 'Apple', price: 2799, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 2749, inStock: true, url: 'https://bestbuy.com' },
+    ],
+    alerts: 20
+  },
+  {
+    id: 'macbook-pro-16-m5-pro-1tb',
+    name: 'MacBook Pro 16" M5 Pro (1TB)',
+    category: 'mac',
+    specs: { chip: 'M5 Pro', storage: '1TB SSD', ram: '36GB', display: '16.2" XDR' },
+    currentPrice: 3149,
+    originalPrice: 3199,
+    lowestPrice: 3099,
+    highestPrice: 3199,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 3199 },
+      { date: '2025-03-22', price: 3179 },
+      { date: '2025-03-24', price: 3149 },
+      { date: '2025-03-26', price: 3149 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 3149, inStock: true, url: 'https://amazon.com/dp/MRW33LL/A' },
+      { name: 'Apple', price: 3199, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 3149, inStock: true, url: 'https://bestbuy.com' },
+    ],
+    alerts: 16
+  },
+  {
+    id: 'macbook-pro-16-m5-max',
+    name: 'MacBook Pro 16" M5 Max (1TB)',
+    category: 'mac',
+    specs: { chip: 'M5 Max', storage: '1TB SSD', ram: '48GB', display: '16.2" XDR' },
+    currentPrice: 3449,
+    originalPrice: 3499,
+    lowestPrice: 3399,
+    highestPrice: 3499,
+    lastUpdated: '2025-03-26T10:00:00Z',
+    lastScraped: '2025-03-26T08:00:00Z',
+    priceHistory: [
+      { date: '2025-03-20', price: 3499 },
+      { date: '2025-03-22', price: 3479 },
+      { date: '2025-03-24', price: 3449 },
+      { date: '2025-03-26', price: 3449 },
+    ],
+    retailers: [
+      { name: 'Amazon', price: 3449, inStock: true, url: 'https://amazon.com/dp/MRW43LL/A' },
+      { name: 'Apple', price: 3499, inStock: true, url: 'https://apple.com/macbook-pro' },
+      { name: 'Best Buy', price: 3449, inStock: true, url: 'https://bestbuy.com' },
+    ],
+    alerts: 22
   }
 ]
 
@@ -550,11 +701,35 @@ function ProductCard({ product, onSendAlert, onPriceUpdate }) {
   const priceChangePercent = ((priceChange / product.originalPrice) * 100).toFixed(1)
   const isPriceDrop = priceChange < 0
 
+  // Extract specs from product name or specs object
+  const specs = product.specs || {}
+  const chip = specs.chip || product.name.match(/M\d+\s*(Pro|Max)?/i)?.[0] || 'M5'
+  const storage = specs.storage || product.name.match(/\d+(GB|TB)/i)?.[0] || ''
+  const ram = specs.ram || product.name.match(/\d+GB\s*RAM/i)?.[0]?.replace(' RAM', '') || ''
+  const display = specs.display || (product.name.includes('16"') ? '16.2"' : product.name.includes('15"') ? '15.3"' : '13.6"')
+
   return (
     <div className="bg-white rounded-lg shadow border border-gray-200">
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-gray-900">{product.name}</h3>
+          <div>
+            <h3 className="font-semibold text-gray-900">{product.name}</h3>
+            {/* Specs Badge Row */}
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                {chip}
+              </span>
+              <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">
+                {storage}
+              </span>
+              <span className="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-medium rounded">
+                {ram || '16GB'} RAM
+              </span>
+              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded">
+                {display}
+              </span>
+            </div>
+          </div>
           <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full uppercase">
             {product.category}
           </span>
@@ -675,29 +850,64 @@ function ProductCard({ product, onSendAlert, onPriceUpdate }) {
         {/* Expanded Retailers */}
         {isExpanded && (
           <div className="mt-4 space-y-2">
-            {product.retailers.map((retailer, i) => (
-              <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <div className="flex items-center">
-                  <span className="font-medium text-sm">{retailer.name}</span>
-                  {retailer.inStock ? (
-                    <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">In Stock</span>
-                  ) : (
-                    <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded">Out</span>
-                  )}
+            {product.retailers.map((retailer, i) => {
+              // Check if affiliate is configured
+              const hasAffiliate = ['Amazon', 'eBay', 'Backmarket'].includes(retailer.name)
+              
+              // Generate proper affiliate URL
+              const getAffiliateUrl = (name, productName) => {
+                const encoded = encodeURIComponent(productName)
+                switch(name) {
+                  case 'Amazon':
+                    return `https://www.amazon.com/s?k=${encoded}&tag=Theresmac-20`
+                  case 'eBay':
+                    return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&campid=5339142921`
+                  case 'Backmarket':
+                    return retailer.url // Backmarket uses direct links
+                  default:
+                    return retailer.url
+                }
+              }
+              
+              const affiliateUrl = getAffiliateUrl(retailer.name, product.name)
+              
+              return (
+                <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                  <div className="flex items-center">
+                    <span className="font-medium text-sm">{retailer.name}</span>
+                    {hasAffiliate && (
+                      <span className="ml-2 px-1.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded" title="Affiliate link active">
+                        $
+                      </span>
+                    )}
+                    {retailer.inStock ? (
+                      <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">In Stock</span>
+                    ) : (
+                      <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded">Out</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold text-sm">${retailer.price}</span>
+                    <a
+                      href={affiliateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-800"
+                      title={hasAffiliate ? "Affiliate link - you'll earn commission" : "Direct link - no affiliate"}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-sm">${retailer.price}</span>
-                  <a
-                    href={retailer.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-800"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-            ))}
+              )
+            })}
+            
+            {/* Affiliate Status Note */}
+            <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+              <span className="font-medium">$ = Affiliate link active</span> (Amazon, eBay, Backmarket)
+              <br />
+              <span className="text-amber-600">Pending: B&H, Best Buy, Newegg, Walmart (CJ approval)</span>
+            </div>
           </div>
         )}
       </div>
