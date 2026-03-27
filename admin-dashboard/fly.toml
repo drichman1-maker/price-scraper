@@ -4,6 +4,8 @@ primary_region = "iad"
 [env]
   PORT = "8080"
   NODE_ENV = "production"
+  THERESMAC_API_URL = "https://theresmac-backend.fly.dev"
+  FROM_EMAIL = "alerts@theresmac.com"
 
 [[services]]
   internal_port = 8080
