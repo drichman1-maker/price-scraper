@@ -113,28 +113,50 @@ class ScraperEngine:
                 await page.close()
                 return product
             
-            # Wait for price element
-            try:
-                await page.wait_for_selector(config.selectors["price_whole"], timeout=10000)
-            except PlaywrightTimeout:
+            # Wait for price element - try multiple selectors
+            price_found = False
+            price_selector = None
+            
+            for selector in [".a-price .a-offscreen", config.selectors["price_whole"], ".a-price-to-pay .a-offscreen", "#priceblock_dealprice", "#priceblock_ourprice"]:
+                try:
+                    await page.wait_for_selector(selector, timeout=5000)
+                    price_elem = await page.query_selector(selector)
+                    if price_elem:
+                        price_text = await price_elem.text_content()
+                        if price_text and '$' in price_text:
+                            price_selector = selector
+                            price_found = True
+                            break
+                except:
+                    continue
+            
+            if not price_found:
                 # Try alternative selectors or captcha detection
                 if await page.query_selector("input[name='password']"):
                     product.error = "CAPTCHA detected"
+                elif await page.query_selector("#captchacharacters"):
+                    product.error = "CAPTCHA detected"
+                elif await page.query_selector("text=Robot Check"):
+                    product.error = "Robot check detected"
                 else:
                     product.error = "Price not found (timeout)"
                 await page.close()
                 return product
             
-            # Extract price
-            price_whole = await page.text_content(config.selectors["price_whole"])
-            price_fraction = await page.text_content(config.selectors["price_fraction"]) or "00"
+            # Extract price using the working selector
+            price_text = await page.text_content(price_selector)
             
-            if price_whole:
-                price_str = f"{price_whole.strip().replace(',', '').replace('$', '')}.{price_fraction.strip()}"
-                try:
-                    product.price = float(price_str)
-                except ValueError:
-                    product.error = f"Price parse error: {price_str}"
+            if price_text:
+                # Parse price like "$999.00" or "$1,299.99"
+                import re
+                price_match = re.search(r'\$([\d,]+\.?\d*)', price_text.strip())
+                if price_match:
+                    try:
+                        product.price = float(price_match.group(1).replace(',', ''))
+                    except ValueError:
+                        product.error = f"Price parse error: {price_text}"
+                else:
+                    product.error = f"Price regex failed: {price_text}"
             
             # Extract title
             try:
