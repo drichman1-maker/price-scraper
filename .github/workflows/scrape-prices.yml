@@ -45,7 +45,12 @@ jobs:
       - name: Install Playwright browsers
         run: |
           python -m playwright install chromium
-          python -m playwright install-deps chromium
+      
+      - name: Install Playwright dependencies (Ubuntu 24.04 fix)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0 || \
+          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 libatspi2.0-0
       
       - name: Check environment
         run: |
@@ -94,20 +99,6 @@ jobs:
       
       - name: Notify on failure
         if: failure()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "text": "❌ Price scraper failed for ${{ github.event.inputs.project || 'both' }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwdn",
-                    "text": "*Price Scraper Failed*\nProject: ${{ github.event.inputs.project || 'both' }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          echo "❌ Scraper failed for ${{ github.event.inputs.project || 'both' }}"
+          echo "Check logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
