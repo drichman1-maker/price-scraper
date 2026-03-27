@@ -30,15 +30,17 @@ const requireApiKey = (req, res, next) => {
 
 // ===== PRODUCTS API =====
 
-// Get all products
-app.get('/api/products', (req, res) => {
-  // In production, fetch from your backends
-  const products = [
-    { id: 'macbook-air-13-m3', name: 'MacBook Air 13" M3', currentPrice: 1049, category: 'mac' },
-    { id: 'macbook-air-15-m3', name: 'MacBook Air 15" M3', currentPrice: 1249, category: 'mac' },
-    { id: 'macbook-pro-14-m4', name: 'MacBook Pro 14" M4', currentPrice: 1599, category: 'mac' },
-  ];
-  res.json(products);
+// Get all products from backend
+app.get('/api/products', async (req, res) => {
+  try {
+    const data = await fetchFromBackend('/api/products');
+    const products = data?.products || data || [];
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    // Fallback to empty array
+    res.json([]);
+  }
 });
 
 // Update product price (manual override)
