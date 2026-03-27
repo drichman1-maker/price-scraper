@@ -5,12 +5,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (need dev deps for build)
+RUN npm ci
 
-# Copy built app
-COPY dist ./dist
-COPY server.cjs ./
+# Copy source
+COPY . .
+
+# Build frontend
+RUN npm run build
 
 # Expose port
 EXPOSE 8080
