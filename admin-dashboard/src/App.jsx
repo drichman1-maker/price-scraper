@@ -15,7 +15,9 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  Filter
+  Filter,
+  Mail,
+  Users
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -444,6 +446,17 @@ export default function App() {
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </button>
+            <button
+              onClick={() => setActiveTab('newsletter')}
+              className={`flex items-center px-1 py-2 border-b-2 text-sm font-medium ${
+                activeTab === 'newsletter'
+                  ? 'border-primary-600 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Newsletter
+            </button>
           </nav>
         </div>
 
@@ -629,6 +642,147 @@ export default function App() {
                   <option>ScraperAPI ($49/mo)</option>
                   <option>BrightData ($3/GB)</option>
                 </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Newsletter Tab */}
+        {activeTab === 'newsletter' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <Users className="w-8 h-8 text-blue-600" />
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Newsletter Subscribers</p>
+                    <p className="text-2xl font-bold text-gray-900" id="subscriberCount">0</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <Mail className="w-8 h-8 text-green-600" />
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Last Newsletter Sent</p>
+                    <p className="text-2xl font-bold text-gray-900">Never</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <Send className="w-8 h-8 text-purple-600" />
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Open Rate</p>
+                    <p className="text-2xl font-bold text-gray-900">--</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Newsletter Composer */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Send Weekly Deals Newsletter</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Subject Line
+                  </label>
+                  <input
+                    type="text"
+                    id="newsletterSubject"
+                    placeholder="e.g., This Week's Best Apple Deals - Save up to $200!"
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Newsletter Content (HTML)
+                  </label>
+                  <textarea
+                    id="newsletterContent"
+                    rows="12"
+                    placeholder="<h2>Weekly Deals</h2><p>Check out these amazing deals...</p>"
+                    className="block w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Tip: Use HTML for formatting. Include &lt;style&gt; tags for custom styling.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="text-sm text-gray-500">
+                    <span id="previewSubscriberCount">0</span> subscribers will receive this email
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => {
+                        const subject = document.getElementById('newsletterSubject').value;
+                        const content = document.getElementById('newsletterContent').value;
+                        if (!subject || !content) {
+                          alert('Please fill in both subject and content');
+                          return;
+                        }
+                        // Send test to yourself
+                        alert('Test email would be sent to your address');
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    >
+                      Send Test to Me
+                    </button>
+                    <button
+                      onClick={() => {
+                        const subject = document.getElementById('newsletterSubject').value;
+                        const content = document.getElementById('newsletterContent').value;
+                        if (!subject || !content) {
+                          alert('Please fill in both subject and content');
+                          return;
+                        }
+                        if (confirm('Are you sure you want to send this newsletter to all subscribers?')) {
+                          fetch('/api/newsletter/send', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'X-API-Key': 'admin-secret-key-change'
+                            },
+                            body: JSON.stringify({
+                              subject,
+                              html: content,
+                              text: content.replace(/<[^>]*>/g, '')
+                            })
+                          })
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.success) {
+                              alert(`Newsletter sent to ${data.sentCount} subscribers!`);
+                            } else {
+                              alert('Error: ' + data.error);
+                            }
+                          })
+                          .catch(err => alert('Error sending newsletter: ' + err.message));
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Send to All Subscribers
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Subscriber List */}
+            <div className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Subscriber List</h3>
+              </div>
+              <div className="p-6">
+                <div id="subscriberList" className="space-y-2">
+                  <p className="text-gray-500 text-center py-4">No subscribers yet</p>
+                </div>
               </div>
             </div>
           </div>

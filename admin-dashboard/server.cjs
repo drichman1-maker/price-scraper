@@ -303,6 +303,106 @@ app.post('/api/settings', requireApiKey, (req, res) => {
   res.json({ success: true, settings: { frequency, retailers, proxy } });
 });
 
+// ===== NEWSLETTER API =====
+
+// In-memory store for newsletter subscribers (in production, use database)
+let newsletterSubscribers = [];
+
+// Get all newsletter subscribers
+app.get('/api/newsletter/subscribers', requireApiKey, (req, res) => {
+  res.json({
+    success: true,
+    subscribers: newsletterSubscribers,
+    count: newsletterSubscribers.length
+  });
+});
+
+// Add newsletter subscriber
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  const { email, source = 'website' } = req.body;
+  
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ success: false, error: 'Invalid email' });
+  }
+  
+  // Check if already subscribed
+  if (newsletterSubscribers.find(s => s.email === email)) {
+    return res.json({ success: true, message: 'Already subscribed' });
+  }
+  
+  newsletterSubscribers.push({
+    email,
+    source,
+    subscribedAt: new Date().toISOString(),
+    id: Date.now().toString()
+  });
+  
+  res.json({ success: true, message: 'Subscribed successfully' });
+});
+
+// Send newsletter to all subscribers
+app.post('/api/newsletter/send', requireApiKey, async (req, res) => {
+  const { subject, html, text } = req.body;
+  
+  if (!process.env.RESEND_API_KEY) {
+    return res.status(500).json({ 
+      success: false, 
+      error: 'RESEND_API_KEY not configured' 
+    });
+  }
+  
+  if (newsletterSubscribers.length === 0) {
+    return res.json({
+      success: true,
+      message: 'No subscribers to send to',
+      sentCount: 0
+    });
+  }
+  
+  try {
+    const results = [];
+    
+    // Send to each subscriber
+    for (const subscriber of newsletterSubscribers) {
+      try {
+        const { data, error } = await resend.emails.send({
+          from: `TheresMac Weekly Deals <${FROM_EMAIL}>`,
+          to: [subscriber.email],
+          subject: subject,
+          html: html,
+          text: text
+        });
+        
+        if (error) throw error;
+        results.push({ email: subscriber.email, status: 'sent', id: data?.id });
+      } catch (err) {
+        results.push({ email: subscriber.email, status: 'failed', error: err.message });
+      }
+    }
+    
+    const sentCount = results.filter(r => r.status === 'sent').length;
+    
+    res.json({
+      success: true,
+      message: `Newsletter sent to ${sentCount} subscribers`,
+      sentCount,
+      results
+    });
+  } catch (error) {
+    console.error('[NEWSLETTER] Send error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Unsubscribe from newsletter
+app.post('/api/newsletter/unsubscribe', (req, res) => {
+  const { email } = req.body;
+  
+  newsletterSubscribers = newsletterSubscribers.filter(s => s.email !== email);
+  
+  res.json({ success: true, message: 'Unsubscribed successfully' });
+});
+
 // ===== SERVE FRONTEND =====
 
 app.get('*', (req, res) => {
