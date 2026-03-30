@@ -1,9 +1,10 @@
-name: Scrape Prices - Every 4 Hours
+name: Scrape Prices - DISABLED
 
 on:
-  schedule:
-    # Run every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
-    - cron: '0 */4 * * *'
+  # DISABLED - User requested to stop automated scraping
+  # schedule:
+  #   # Run every 4 hours: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+  #   - cron: '0 */4 * * *'
   
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
