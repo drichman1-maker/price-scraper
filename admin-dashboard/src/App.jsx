@@ -323,13 +323,66 @@ const MOCK_SCRAPER_LOGS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('products')
-  const [products, setProducts] = useState(MOCK_PRODUCTS)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState(MOCK_SCRAPER_LOGS)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showAlertModal, setShowAlertModal] = useState(false)
   const [alertMessage, setAlertMessage] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
+
+  // Fetch real products from backend
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    setLoading(true)
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://theresmac-backend.fly.dev'
+      const response = await fetch(`${apiUrl}/api/products`)
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      const productsList = Array.isArray(data) ? data : (data.products || [])
+      
+      // Transform backend format to dashboard format
+      const transformed = productsList.map(p => {
+        const pricesArray = Object.entries(p.prices || {})
+          .filter(([_, d]) => d && typeof d === 'object' && d.price && !d.notCarried)
+          .map(([retailer, d]) => ({ name: retailer.charAt(0).toUpperCase() + retailer.slice(1), price: d.price, inStock: d.inStock !== false, url: d.url || '' }))
+        
+        const sortedPrices = [...pricesArray].sort((a, b) => a.price - b.price)
+        const bestPrice = sortedPrices[0]?.price || 0
+        const worstPrice = sortedPrices[sortedPrices.length - 1]?.price || 0
+        
+        return {
+          id: p.id,
+          name: p.name,
+          category: p.category || 'mac',
+          specs: p.specs || {},
+          currentPrice: bestPrice,
+          originalPrice: p.msrp || worstPrice,
+          lowestPrice: bestPrice,
+          highestPrice: worstPrice,
+          lastUpdated: p.lastUpdated || new Date().toISOString(),
+          lastScraped: p.lastUpdated || new Date().toISOString(),
+          priceHistory: [],
+          retailers: sortedPrices,
+          alerts: 0,
+          msrp: p.msrp || null,
+        }
+      })
+      
+      setProducts(transformed)
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch products:', error)
+      // Fall back to mock data
+      setProducts(MOCK_PRODUCTS)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSendAlert = async () => {
     // Send price drop alert
@@ -349,18 +402,53 @@ export default function App() {
     alert(`Price drop alert sent to ${selectedProduct.alerts} subscribers!`)
   }
 
-  const handleManualPriceUpdate = (productId, newPrice, retailer) => {
-    setProducts(products.map(p => {
-      if (p.id === productId) {
-        return {
-          ...p,
-          currentPrice: newPrice,
-          lastUpdated: new Date().toISOString(),
-          priceHistory: [...p.priceHistory, { date: format(new Date(), 'yyyy-MM-dd'), price: newPrice }]
-        }
+  const handleManualPriceUpdate = async (productId, newPrice, retailer) => {
+    // If no retailer specified, update the first/best retailer
+    const product = products.find(p => p.id === productId)
+    const targetRetailer = retailer || product?.retailers?.[0]?.name?.toLowerCase() || 'amazon'
+    
+    try {
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'https://theresmac-backend.fly.dev'}/api/admin/update-price`
+      const apiKey = import.meta.env.VITE_API_KEY || ''
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          productId,
+          retailer: targetRetailer,
+          price: newPrice,
+          inStock: true,
+        }),
+      })
+      
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.error || 'Failed to update price')
       }
-      return p
-    }))
+      
+      const result = await response.json()
+      console.log('[Dashboard] Price updated:', result)
+      
+      // Update local state to reflect the change
+      setProducts(products.map(p => {
+        if (p.id === productId) {
+          return {
+            ...p,
+            currentPrice: newPrice,
+            lastUpdated: new Date().toISOString(),
+            priceHistory: [...p.priceHistory, { date: format(new Date(), 'yyyy-MM-dd'), price: newPrice }]
+          }
+        }
+        return p
+      }))
+    } catch (error) {
+      console.error('[Dashboard] Price update failed:', error)
+      alert(`Price update failed: ${error.message}`)
+    }
   }
 
   const forceScrape = () => {
@@ -1041,7 +1129,13 @@ function ProductCard({ product, onSendAlert, onPriceUpdate }) {
                     )}
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="font-bold text-sm">${retailer.price}</span>
+                    <RetailerPriceEditor
+                      productId={product.id}
+                      retailerName={retailer.name}
+                      retailerPrice={retailer.price}
+                      inStock={retailer.inStock}
+                      onUpdated={fetchProducts}
+                    />
                     <a
                       href={affiliateUrl}
                       target="_blank"
@@ -1066,6 +1160,67 @@ function ProductCard({ product, onSendAlert, onPriceUpdate }) {
         )}
       </div>
     </div>
+  )
+}
+
+function RetailerPriceEditor({ productId, retailerName, retailerPrice, inStock, onUpdated }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editPrice, setEditPrice] = useState(retailerPrice)
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://theresmac-backend.fly.dev'
+      const apiKey = import.meta.env.VITE_API_KEY || ''
+      const response = await fetch(`${apiUrl}/api/admin/update-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+        body: JSON.stringify({
+          productId,
+          retailer: retailerName.toLowerCase(),
+          price: editPrice,
+          inStock: true,
+        }),
+      })
+      if (!response.ok) {
+        const err = await response.json()
+        throw new Error(err.error || 'Update failed')
+      }
+      setIsEditing(false)
+      if (onUpdated) onUpdated()
+    } catch (error) {
+      alert(`Failed: ${error.message}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center space-x-1">
+        <span className="text-sm">$</span>
+        <input
+          type="number"
+          value={editPrice}
+          onChange={(e) => setEditPrice(Number(e.target.value))}
+          className="w-20 border border-gray-300 rounded px-2 py-0.5 text-sm"
+          autoFocus
+        />
+        <button onClick={handleSave} disabled={saving} className="px-2 py-0.5 bg-green-600 text-white rounded text-xs">
+          {saving ? '...' : 'OK'}
+        </button>
+        <button onClick={() => { setIsEditing(false); setEditPrice(retailerPrice) }} className="px-2 py-0.5 text-gray-500 text-xs">
+          X
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <button onClick={() => setIsEditing(true)} className="font-bold text-sm hover:underline cursor-pointer" title="Click to edit">
+      ${retailerPrice}
+    </button>
   )
 }
 
