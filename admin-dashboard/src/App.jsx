@@ -62,6 +62,7 @@ const s = {
   input: { backgroundColor: '#1a1a1a', border: '1px solid #262626', borderRadius: 6, padding: '8px 12px', color: '#fff', fontSize: 14, outline: 'none' },
   btn: { backgroundColor: '#262626', border: '1px solid #333', borderRadius: 6, padding: '8px 16px', color: '#fff', cursor: 'pointer', fontSize: 14 },
   btnActive: { backgroundColor: '#2563eb', border: '1px solid #3b82f6', borderRadius: 6, padding: '8px 16px', color: '#fff', cursor: 'pointer', fontSize: 14 },
+  btnDanger: { backgroundColor: '#991b1b', border: '1px solid #dc2626', borderRadius: 6, padding: '8px 16px', color: '#fff', cursor: 'pointer', fontSize: 14 },
   badge: { padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' },
   badgeTM: { backgroundColor: '#1e3a5f', color: '#60a5fa' },
   badgeGD: { backgroundColor: '#3b1f2b', color: '#f472b6' },
@@ -451,9 +452,10 @@ function AlertsTab({ alerts, siteFilter, onTest, onDelete }) {
 
 // ─── PriceHistoryTab ──────────────────────────────────────────────────────────
 
-function PriceHistoryTab({ history, siteFilter }) {
+function PriceHistoryTab({ history, siteFilter, onClear }) {
   const [filter, setFilter] = useState(siteFilter);
   const [dropsOnly, setDropsOnly] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   const filtered = history.filter((h) => {
     if (filter === 'theresmac' && h.site !== 'theresmac') return false;
@@ -481,6 +483,19 @@ function PriceHistoryTab({ history, siteFilter }) {
           />
           Show price drops only
         </label>
+        {history.length > 0 && (
+          <button
+            onClick={async () => {
+              if (!confirm('Clear all price history for both sites?')) return;
+              setClearing(true);
+              try { await onClear(); } finally { setClearing(false); }
+            }}
+            disabled={clearing}
+            style={{ ...s.btnDanger, fontSize: 13, padding: '6px 14px' }}
+          >
+            {clearing ? 'Clearing...' : 'Clear History'}
+          </button>
+        )}
       </div>
 
       <div style={{ ...s.card, padding: 0, overflow: 'auto' }}>
@@ -669,6 +684,24 @@ export default function App() {
     return results;
   }, []);
 
+  const clearHistory = useCallback(async () => {
+    const results = [];
+    for (const site of ['theresmac', 'gpudrip']) {
+      try {
+        const api = apiForSite(site);
+        const key = keyForSite(site);
+        const res = await fetch(`${api}/api/admin/price-history`, { method: 'DELETE', headers: { 'x-api-key': key } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        results.push({ site, ok: true });
+      } catch (err) {
+        console.error(`[${site}] Failed to clear price history:`, err);
+        results.push({ site, ok: false });
+      }
+    }
+    setHistory([]);
+    return results;
+  }, []);
+
   // ── Load all data ──
 
   const loadAll = useCallback(async (showSpinner = true) => {
@@ -703,7 +736,10 @@ export default function App() {
       const res = await fetch(`${api}/api/admin/update-price`, {
         method: 'POST',
         headers: headers(site),
-        body: JSON.stringify({ productId, retailer, price, inStock, url, notCarried }),
+        body: JSON.stringify(site === 'gpudrip'
+          ? { gpuId: productId, retailer, price, inStock, url }
+          : { productId, retailer, price, inStock, url, notCarried }
+        ),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -903,6 +939,7 @@ export default function App() {
               <PriceHistoryTab
                 history={history}
                 siteFilter={siteFilter}
+                onClear={clearHistory}
               />
             )}
             {activeTab === 'settings' && (
