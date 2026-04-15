@@ -98,12 +98,20 @@ SCRAPER_API_KEY = os.getenv("SCRAPER_API_KEY")
 SCRAPER_API_URL = "http://api.scraperapi.com"
 
 def get_scraperapi_url(target_url: str, premium: bool = False) -> str:
-    """Get ScraperAPI URL with authentication"""
+    \"\"\"Get ScraperAPI URL with authentication\"\"\"
     if not SCRAPER_API_KEY:
         return target_url
     
-    params = f"api_key={SCRAPER_API_KEY}&url={target_url}"
+    params = f\"api_key={SCRAPER_API_KEY}&url={target_url}\"
     if premium:
-        params += "&premium=true"
+        params += \"&premium=true\"
     
-    return f"{SCRAPER_API_URL}?{params}"
+    return f\"{SCRAPER_API_URL}?{params}\"
+
+def validate_config():
+    required = [\"THERESMAC_API_KEY\", \"GPUDRIP_API_KEY\", \"SCRAPER_API_KEY\"]
+    missing = [k for k in required if not os.getenv(k)]
+    if missing:
+        raise EnvironmentError(f\"Missing API keys: {', '.join(missing)}\")
+
+validate_config()
