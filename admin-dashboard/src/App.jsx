@@ -14,14 +14,20 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
+  Download,
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const THERESMAC_API = import.meta.env.VITE_THERESMAC_API || 'https://theresmac-backend.fly.dev';
 const GPUDRIP_API = import.meta.env.VITE_GPUDRIP_API || 'https://gpudrip-backend-icy-night-2201.fly.dev';
+const HEALTHINDEX_API = import.meta.env.VITE_HEALTHINDEX_API || 'https://healthindex-backend.fly.dev';
+const BABYGEAR_API = import.meta.env.VITE_BABYGEAR_API || 'https://babygear-backend.fly.dev';
+
 const THERESMAC_KEY = import.meta.env.VITE_THERESMAC_KEY || '';
 const GPUDRIP_KEY = import.meta.env.VITE_GPUDRIP_KEY || '';
+const HEALTHINDEX_KEY = import.meta.env.VITE_HEALTHINDEX_KEY || '';
+const BABYGEAR_KEY = import.meta.env.VITE_BABYGEAR_KEY || '';
 
 const THERESMAC_RETAILERS = [
   'apple', 'amazon', 'walmart', 'target', 'bestbuy', 'bh', 'adorama',
@@ -31,9 +37,19 @@ const GPUDRIP_RETAILERS = [
   'amazon', 'bestbuy', 'newegg', 'bh_photo', 'micro_center',
   'adorama', 'antonline', 'cdw',
 ];
+const HEALTHINDEX_RETAILERS = [
+  'amazon', 'ebay', 'sunlighten', 'iqair', 'molekule', 'austinair',
+  'oura', 'chilisleep', 'mitoredlight', 'platinumled', 'therabody',
+  'hyperice', 'athleticgreens', 'thorne',
+];
+const BABYGEAR_RETAILERS = [
+  'amazon', 'ebay', 'bestbuy', 'walmart', 'target', 'buybuyBaby', 'amazonBaby',
+];
 
 const THERESMAC_CATEGORIES = ['mac', 'iphone', 'ipad', 'watch', 'airpods'];
 const GPUDRIP_CATEGORIES = ['nvidia', 'amd', 'intel'];
+const HEALTHINDEX_CATEGORIES = ['air-filtration', 'recovery', 'red-light-panels', 'sauna', 'sleep', 'supplements'];
+const BABYGEAR_CATEGORIES = ['car-seats', 'carriers', 'cribs', 'monitors', 'strollers'];
 
 const RETAILER_LABELS = {
   apple: 'Apple',
@@ -51,6 +67,20 @@ const RETAILER_LABELS = {
   bh_photo: 'B&H Photo',
   micro_center: 'Micro Center',
   antonline: 'AntOnline',
+  sunlighten: 'Sunlighten',
+  iqair: 'IQAir',
+  molekule: 'Molekule',
+  austinair: 'Austin Air',
+  oura: 'Oura',
+  chilisleep: 'ChiliSleep',
+  mitoredlight: 'Mito Red Light',
+  platinumled: 'PlatinumLED',
+  therabody: 'Therabody',
+  hyperice: 'Hyperice',
+  athleticgreens: 'Athletic Greens',
+  thorne: 'Thorne',
+  buybuyBaby: 'buybuy BABY',
+  amazonBaby: 'Amazon Baby',
 };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -66,6 +96,8 @@ const s = {
   badge: { padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' },
   badgeTM: { backgroundColor: '#1e3a5f', color: '#60a5fa' },
   badgeGD: { backgroundColor: '#3b1f2b', color: '#f472b6' },
+  badgeHI: { backgroundColor: '#064e3b', color: '#34d399' },
+  badgeBG: { backgroundColor: '#4c1d2b', color: '#f472b6' },
   tableTh: { padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#999', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #262626' },
   tableTd: { padding: '10px 12px', fontSize: 14, borderBottom: '1px solid #1a1a1a' },
 };
@@ -83,17 +115,154 @@ const fmtDate = (d) => {
   catch { return '—'; }
 };
 
-const siteOf = (site) => site === 'theresmac' ? 'TM' : 'GD';
-const siteLabel = (site) => site === 'theresmac' ? 'TheresMac' : 'GPU Drip';
-const apiForSite = (site) => site === 'theresmac' ? THERESMAC_API : GPUDRIP_API;
-const keyForSite = (site) => site === 'theresmac' ? THERESMAC_KEY : GPUDRIP_KEY;
-const retailersForSite = (site) => site === 'theresmac' ? THERESMAC_RETAILERS : GPUDRIP_RETAILERS;
-const categoriesForSite = (site) => site === 'theresmac' ? THERESMAC_CATEGORIES : GPUDRIP_CATEGORIES;
+const siteOf = (site) => {
+  const map = {
+    theresmac: 'TM',
+    gpudrip: 'GD',
+    healthindex: 'HI',
+    babygear: 'BG',
+  };
+  return map[site] || site;
+};
+
+const siteLabel = (site) => {
+  const map = {
+    theresmac: 'TheresMac',
+    gpudrip: 'GPU Drip',
+    healthindex: 'Health Index',
+    babygear: 'Baby Gear',
+  };
+  return map[site] || site;
+};
+
+const apiForSite = (site) => {
+  const map = {
+    theresmac: THERESMAC_API,
+    gpudrip: GPUDRIP_API,
+    healthindex: HEALTHINDEX_API,
+    babygear: BABYGEAR_API,
+  };
+  return map[site] || THERESMAC_API;
+};
+
+const keyForSite = (site) => {
+  const map = {
+    theresmac: THERESMAC_KEY,
+    gpudrip: GPUDRIP_KEY,
+    healthindex: HEALTHINDEX_KEY,
+    babygear: BABYGEAR_KEY,
+  };
+  return map[site] || '';
+};
+
+const retailersForSite = (site) => {
+  const map = {
+    theresmac: THERESMAC_RETAILERS,
+    gpudrip: GPUDRIP_RETAILERS,
+    healthindex: HEALTHINDEX_RETAILERS,
+    babygear: BABYGEAR_RETAILERS,
+  };
+  return map[site] || [];
+};
+
+const categoriesForSite = (site) => {
+  const map = {
+    theresmac: THERESMAC_CATEGORIES,
+    gpudrip: GPUDRIP_CATEGORIES,
+    healthindex: HEALTHINDEX_CATEGORIES,
+    babygear: BABYGEAR_CATEGORIES,
+  };
+  return map[site] || [];
+};
+
+const badgeStyleForSite = (site) => {
+  const map = {
+    theresmac: s.badgeTM,
+    gpudrip: s.badgeGD,
+    healthindex: s.badgeHI,
+    babygear: s.badgeBG,
+  };
+  return map[site] || s.badge;
+};
 
 const headers = (site) => ({
   'Content-Type': 'application/json',
   'x-api-key': keyForSite(site),
 });
+
+// ─── CSV Export Helpers ──────────────────────────────────────────────────────
+
+function downloadCSV(filename, csvString) {
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeCSV(val) {
+  const s = String(val ?? '');
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+function exportProductsCSV(products) {
+  const rows = [['Site', 'Product', 'Category', 'MSRP', 'Best Price', 'Discount %', 'Retailer', 'Price', 'In Stock', 'URL']];
+  for (const p of products) {
+    const prices = p.prices || {};
+    const site = p._site || 'unknown';
+    const retailers = retailersForSite(site);
+    const bestEntry = retailers
+      .map((r) => [r, prices[r]])
+      .filter(([, d]) => d && d.price && !d.notCarried)
+      .sort((a, b) => a[1].price - b[1].price);
+    const bestPrice = bestEntry[0]?.[1]?.price;
+    const discount = p.msrp && bestPrice ? Math.round(((p.msrp - bestPrice) / p.msrp) * 100) : 0;
+
+    for (const r of retailers) {
+      const d = prices[r];
+      if (!d || d.notCarried) continue;
+      rows.push([
+        siteOf(site), p.name, p.category || '', p.msrp || '', bestPrice || '',
+        discount, RETAILER_LABELS[r] || r, d.price || '', d.inStock ? 'Yes' : 'No', d.url || '',
+      ]);
+    }
+    if (bestEntry.length === 0) {
+      rows.push([siteOf(site), p.name, p.category || '', p.msrp || '', '', '', '', '', '', '']);
+    }
+  }
+  downloadCSV(`products-${new Date().toISOString().slice(0, 10)}.csv`, rows.map((r) => r.map(escapeCSV).join(',')).join('\n'));
+}
+
+function exportAlertsCSV(alerts) {
+  const rows = [['Site', 'Product', 'User Email', 'Target Price', 'Current Best', 'Status', 'Created']];
+  for (const a of alerts) {
+    rows.push([
+      siteOf(a.site), a.productName || a.productId || '', a.email || '',
+      a.targetPrice || '', '', a.active !== false ? 'Active' : 'Inactive',
+      a.createdAt || a.created || '',
+    ]);
+  }
+  downloadCSV(`alerts-${new Date().toISOString().slice(0, 10)}.csv`, rows.map((r) => r.map(escapeCSV).join(',')).join('\n'));
+}
+
+function exportHistoryCSV(history) {
+  const rows = [['Site', 'Product', 'Retailer', 'Old Price', 'New Price', 'Change %', 'In Stock', 'Date']];
+  for (const h of history) {
+    const pct = h.oldPrice ? Math.round(((h.oldPrice - h.newPrice) / h.oldPrice) * 100) : 0;
+    rows.push([
+      siteOf(h.site), h.productName || h.productId || '',
+      RETAILER_LABELS[h.retailer] || h.retailer || '',
+      h.oldPrice || '', h.newPrice || '', pct,
+      h.in_stock ? 'Yes' : 'No', h.date || h.createdAt || '',
+    ]);
+  }
+  downloadCSV(`price-history-${new Date().toISOString().slice(0, 10)}.csv`, rows.map((r) => r.map(escapeCSV).join(',')).join('\n'));
+}
 
 // ─── StatsCards ───────────────────────────────────────────────────────────────
 
@@ -166,7 +335,7 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ ...s.badge, ...(site === 'theresmac' ? s.badgeTM : s.badgeGD) }}>{siteOf(site)}</span>
+            <span style={{ ...s.badge, ...badgeStyleForSite(site) }}>{siteOf(site)}</span>
             {product.category && <span style={{ ...s.badge, backgroundColor: '#1a1a1a', color: '#888' }}>{product.category}</span>}
           </div>
           <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.3 }}>{product.name}</div>
@@ -310,7 +479,9 @@ function ProductList({ tmProducts, gdProducts, siteFilter, onPriceUpdate, onMsrp
 
   const activeCategories = siteFilter === 'gpudrip' ? GPUDRIP_CATEGORIES
     : siteFilter === 'theresmac' ? THERESMAC_CATEGORIES
-    : [...THERESMAC_CATEGORIES, ...GPUDRIP_CATEGORIES];
+    : siteFilter === 'healthindex' ? HEALTHINDEX_CATEGORIES
+    : siteFilter === 'babygear' ? BABYGEAR_CATEGORIES
+    : [...THERESMAC_CATEGORIES, ...GPUDRIP_CATEGORIES, ...HEALTHINDEX_CATEGORIES, ...BABYGEAR_CATEGORIES];
 
   const toggleSort = (col) => {
     if (sortBy === col) setSortDir((d) => d === 'asc' ? 'desc' : 'asc');
@@ -346,6 +517,13 @@ function ProductList({ tmProducts, gdProducts, siteFilter, onPriceUpdate, onMsrp
             </button>
           ))}
         </div>
+        <button
+          onClick={() => exportProductsCSV(filtered)}
+          style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 6 }}
+          title="Export products to CSV"
+        >
+          <Download size={14} /> Export CSV
+        </button>
       </div>
 
       {/* Results count */}
@@ -385,12 +563,19 @@ function AlertsTab({ alerts, siteFilter, onTest, onDelete }) {
   return (
     <div>
       {/* Site filter */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {['all', 'theresmac', 'gpudrip'].map((f) => (
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        {['all', 'theresmac', 'gpudrip', 'healthindex', 'babygear'].map((f) => (
           <button key={f} onClick={() => setFilter(f)} style={filter === f ? s.btnActive : s.btn}>
             {f === 'all' ? 'All Sites' : siteLabel(f)}
           </button>
         ))}
+        <button
+          onClick={() => exportAlertsCSV(filtered)}
+          style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}
+          title="Export alerts to CSV"
+        >
+          <Download size={14} /> Export CSV
+        </button>
       </div>
 
       <div style={{ ...s.card, padding: 0, overflow: 'auto' }}>
@@ -424,7 +609,7 @@ function AlertsTab({ alerts, siteFilter, onTest, onDelete }) {
                   <span style={{ fontWeight: 600 }}>{fmt(a.targetPrice)}</span>
                 </td>
                 <td style={s.tableTd}>
-                  <span style={{ ...s.badge, ...(a.site === 'theresmac' ? s.badgeTM : s.badgeGD) }}>
+                  <span style={{ ...s.badge, ...badgeStyleForSite(a.site) }}>
                     {siteOf(a.site)}
                   </span>
                 </td>
@@ -468,34 +653,43 @@ function PriceHistoryTab({ history, siteFilter, onClear }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 8 }}>
-          {['all', 'theresmac', 'gpudrip'].map((f) => (
+          {['all', 'theresmac', 'gpudrip', 'healthindex', 'babygear'].map((f) => (
             <button key={f} onClick={() => setFilter(f)} style={filter === f ? s.btnActive : s.btn}>
               {f === 'all' ? 'All Sites' : siteLabel(f)}
             </button>
           ))}
         </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#ccc' }}>
-          <input
-            type="checkbox"
-            checked={dropsOnly}
-            onChange={(e) => setDropsOnly(e.target.checked)}
-            style={{ accentColor: '#2563eb' }}
-          />
-          Show price drops only
-        </label>
-        {history.length > 0 && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: '#ccc' }}>
+            <input
+              type="checkbox"
+              checked={dropsOnly}
+              onChange={(e) => setDropsOnly(e.target.checked)}
+              style={{ accentColor: '#2563eb' }}
+            />
+            Price drops only
+          </label>
           <button
-            onClick={async () => {
-              if (!confirm('Clear all price history for both sites?')) return;
-              setClearing(true);
-              try { await onClear(); } finally { setClearing(false); }
-            }}
-            disabled={clearing}
-            style={{ ...s.btnDanger, fontSize: 13, padding: '6px 14px' }}
+            onClick={() => exportHistoryCSV(filtered)}
+            style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 6 }}
+            title="Export price history to CSV"
           >
-            {clearing ? 'Clearing...' : 'Clear History'}
+            <Download size={14} /> Export CSV
           </button>
-        )}
+          {history.length > 0 && (
+            <button
+              onClick={async () => {
+                if (!confirm('Clear all price history for both sites?')) return;
+                setClearing(true);
+                try { await onClear(); } finally { setClearing(false); }
+              }}
+              disabled={clearing}
+              style={{ ...s.btnDanger, fontSize: 13, padding: '6px 14px' }}
+            >
+              {clearing ? 'Clearing...' : 'Clear History'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ ...s.card, padding: 0, overflow: 'auto' }}>
@@ -535,7 +729,7 @@ function PriceHistoryTab({ history, siteFilter, onClear }) {
                     </span>
                   </td>
                   <td style={s.tableTd}>
-                    <span style={{ ...s.badge, ...(h.site === 'theresmac' ? s.badgeTM : s.badgeGD) }}>
+                    <span style={{ ...s.badge, ...badgeStyleForSite(h.site) }}>
                       {siteOf(h.site)}
                     </span>
                   </td>
@@ -859,7 +1053,7 @@ export default function App() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px 0' }}>
         {/* Site filter toggle */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          {['all', 'theresmac', 'gpudrip'].map((f) => (
+          {['all', 'theresmac', 'gpudrip', 'healthindex', 'babygear'].map((f) => (
             <button
               key={f}
               onClick={() => setSiteFilter(f)}
