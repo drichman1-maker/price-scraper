@@ -2,13 +2,53 @@
   "rtx-4090": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=RTX+4090&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/ASUS-GeForce-DisplayPort-DisplayPort-Graphics/dp/B0BGJQ4TZP",
+      "msrp": 1599
+    },
+    {
+      "retailer": "ebay",
+      "url": "https://www.ebay.com/sch/i.html?_nkw=RTX+4090+24GB&_sacat=0",
+      "msrp": 1599
     }
   ],
   "rtx-4080-super": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=RTX+4080+Super&ref=nb_sb_noss"
+      "url": "https://www.amazon.com/NVIDIA-GeForce-Graphics-DisplayPort-Resolution/dp/B0CRPKNXQK",
+      "msrp": 999
+    },
+    {
+      "retailer": "ebay",
+      "url": "https://www.ebay.com/sch/i.html?_nkw=RTX+4080+Super+16GB&_sacat=0",
+      "msrp": 999
+    }
+  ],
+  "rtx-4070-ti-super": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/NVIDIA-GeForce-Graphics-DisplayPort-Gaming/dp/B0CRSQMQQ3",
+      "msrp": 799
+    }
+  ],
+  "rtx-4070-super": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/NVIDIA-GeForce-Graphics-Gaming-DisplayPort/dp/B0CRSVXK9F",
+      "msrp": 599
+    }
+  ],
+  "rtx-4070": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/NVIDIA-GeForce-Graphics-DisplayPort-Gaming/dp/B09SNSD6SL",
+      "msrp": 599
+    }
+  ],
+  "rx-7900-xtx": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/AMD-Radeon-Graphics-Gaming-DisplayPort/dp/B09PM99D2W",
+      "msrp": 999
     }
   ]
 }

@@ -85,18 +85,55 @@ class BackendAPIClient:
             }
     
     async def update_prices_batch(self, products: List[ScrapedProduct]) -> List[Dict]:
-        """Update multiple prices in parallel"""
-        semaphore = asyncio.Semaphore(5)  # Max 5 concurrent API calls
-        
-        async def update_with_limit(product: ScrapedProduct) -> Dict:
-            async with semaphore:
-                return await self.update_price(product)
-        
-        results = await asyncio.gather(*[
-            update_with_limit(p) for p in products
-        ])
-        
-        return list(results)
+        """Alert on prices - NO backend update"""
+        print("\n" + "="*60)
+        print("📊 PRICE & STOCK ALERTS")
+        print("="*60)
+
+        results = []
+        for product in products:
+            if product.error:
+                print(f"❌ {product.sku} ({product.retailer}): {product.error}")
+                results.append({"success": False, "sku": product.sku, "error": product.error})
+            elif not product.price:
+                print(f"⚠️ {product.sku} ({product.retailer}): No price found")
+                results.append({"success": False, "sku": product.sku, "error": "No price"})
+            else:
+                stock_status = "✅ IN STOCK" if product.in_stock else "❌ OUT OF STOCK"
+                print(f"💰 {product.sku} ({product.retailer})")
+                print(f"   Price: ${product.price:.2f}")
+
+                # Calculate discount if MSRP is available
+                if product.msrp:
+                    discount = product.msrp - product.price
+                    discount_percent = (discount / product.msrp) * 100 if product.msrp > 0 else 0
+                    if discount > 0:
+                        print(f"   MSRP: ${product.msrp:.2f} | 🎉 SAVE ${discount:.2f} ({discount_percent:.1f}% off)")
+                    elif discount < 0:
+                        premium = -discount
+                        print(f"   MSRP: ${product.msrp:.2f} | ⚠️ PREMIUM ${premium:.2f} ({-discount_percent:.1f}% above MSRP)")
+                    else:
+                        print(f"   MSRP: ${product.msrp:.2f} | ✅ At MSRP")
+
+                print(f"   Status: {stock_status}")
+                if product.title:
+                    print(f"   Title: {product.title[:80]}")
+                print()
+                results.append({
+                    "success": True,
+                    "sku": product.sku,
+                    "retailer": product.retailer,
+                    "price": product.price,
+                    "in_stock": product.in_stock,
+                    "msrp": product.msrp
+                })
+
+        in_stock_count = sum(1 for r in results if r.get("success") and r.get("in_stock"))
+        print("="*60)
+        print(f"✅ {len(results)} total products | {in_stock_count} in stock")
+        print("="*60 + "\n")
+
+        return results
     
     async def get_products(self) -> List[Dict]:
         """Get list of products to scrape from backend"""

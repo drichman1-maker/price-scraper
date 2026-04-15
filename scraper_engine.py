@@ -25,6 +25,7 @@ class ScrapedProduct:
     url: Optional[str] = None
     error: Optional[str] = None
     raw_data: Optional[Dict] = None
+    msrp: Optional[float] = None  # Added MSRP field
 
 
 class ScraperEngine:

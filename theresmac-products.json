@@ -1,80 +1,58 @@
 {
-  "macbook-air-13-m5-512": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/dp/MC6A4LL/A"
-    }
-  ],
-  "macbook-air-13-m5-1tb": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/dp/MC6B4LL/A"
-    }
-  ],
-  "macbook-air-13-m5-24gb": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Air+13+M5+24GB"
-    }
-  ],
-  "macbook-air-15-m5-512": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/dp/MC8D4LL/A"
-    }
-  ],
-  "macbook-air-15-m5-24gb": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Air+15+M5+24GB"
-    }
-  ],
   "macbook-pro-14-m5": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/dp/MP5X3LL/A"
-    }
-  ],
-  "macbook-pro-14-m5-1tb": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/dp/MHWC3LL/A"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Space+Black",
+      "msrp": 1999
     }
   ],
   "macbook-pro-14-m5-pro": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Pro"
-    }
-  ],
-  "macbook-pro-14-m5-pro-1tb": [
-    {
-      "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Pro+1TB"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Pro+Space+Black",
+      "msrp": 2499
     }
   ],
   "macbook-pro-14-m5-max": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Max"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+Max+Space+Black",
+      "msrp": 3199
     }
   ],
-  "macbook-pro-16-m5-pro": [
+  "macbook-pro-16-m5": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Pro"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Space+Black",
+      "msrp": 2499
     }
   ],
-  "macbook-pro-16-m5-pro-1tb": [
+  "macbook-pro-14-m5-1tb": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Pro+1TB"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M5+1TB+Space+Black",
+      "msrp": 2199
     }
   ],
-  "macbook-pro-16-m5-max": [
+  "macbook-pro-16-m5-1tb": [
     {
       "retailer": "amazon",
-      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+Max"
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+16+M5+1TB+Space+Black",
+      "msrp": 2699
+    }
+  ],
+  "macbook-pro-14-m3-refurbished": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Pro+14+M3+refurbished",
+      "msrp": 1799
+    }
+  ],
+  "macbook-air-13-m2-refurbished": [
+    {
+      "retailer": "amazon",
+      "url": "https://www.amazon.com/s?k=MacBook+Air+13+M2+refurbished",
+      "msrp": 799
     }
   ]
 }

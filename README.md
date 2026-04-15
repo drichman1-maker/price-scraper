@@ -1,205 +1,210 @@
-# Price Scraper for TheresMac & GPU Drip
+# Price & Stock Monitoring System
 
-Automated price scraping with admin dashboard. Scrapes Amazon and eBay every 4 hours and updates backend APIs.
+Unified monitoring solution for **TheresMac** and **GPU Drip** that tracks prices, stock status, and deal opportunities across multiple retailers.
 
-## Components
+## Features
 
-1. **Scraper** (GitHub Actions) - Automated price scraping
-2. **Admin Dashboard** (React + Express) - Web UI for management and alerts
+✅ **Dual-Site Monitoring** - Fetches live data from both backends in one run
+✅ **Deal Detection** - Alerts when prices drop ≥10% below MSRP
+✅ **Premium Alerts** - Flags when prices exceed MSRP by ≥15%
+✅ **Stock Tracking** - Monitors in/out of stock status
+✅ **Rate Limiting** - Built-in retry logic with exponential backoff
+✅ **HTML Dashboard** - Visual report with sortable data
+✅ **JSON Export** - Machine-readable results for integrations
+✅ **URL Validation** - Verifies affiliate links redirect correctly
+✅ **Scheduled Runs** - Cron/launchd support for automation
+
+## Quick Start
+
+### Manual Scan
+
+```bash
+cd ~/.openclaw/workspace/scrapers
+
+# Full scan (both sites)
+./run_price_monitor.sh
+
+# Alert-only mode (deals + premiums)
+./run_price_monitor.sh --alert-only
+
+# Single project
+./run_price_monitor.sh --project theresmac
+./run_price_monitor.sh --project gpudrip
+```
+
+### View Results
+
+- **Dashboard**: Open `price_monitor_dashboard.html` in your browser
+- **Raw Data**: `price_monitor_results.json` (522KB, 1,203 price points)
+- **Logs**: Check console output or redirect to file
+
+### URL Checker
+
+Verify affiliate/product URLs redirect correctly:
+
+```bash
+# Check all URLs
+python3 url_checker.py
+
+# Check single project
+python3 url_checker.py --project theresmac
+
+# Check single retailer
+python3 url_checker.py --retailer amazon
+```
+
+## Scheduling
+
+### Daily 8 AM EST (Cron)
+
+```bash
+crontab -e
+```
+
+Add:
+```cron
+0 8 * * * cd /Users/douglasrichman/.openclaw/workspace/scrapers && ./run_price_monitor.sh >> /tmp/price_monitor.log 2>&1
+```
+
+### Hourly Deal Hunting
+
+```cron
+0 * * * * cd /Users/douglasrichman/.openclaw/workspace/scrapers && ./run_price_monitor.sh --alert-only >> /tmp/price_monitor.log 2>&1
+```
+
+### macOS launchd (Native)
+
+See `SCHEDULING.md` for full setup.
+
+## Current Stats (Last Scan: 2026-04-15 10:51 AM)
+
+| Project | Products | Price Points | In Stock | Deals (≥10% off) | Premiums |
+|---------|----------|--------------|----------|------------------|----------|
+| TheresMac | 128 | 899 | 857 (95%) | 263 | 0 |
+| GPU Drip | 38 | 304 | 264 (87%) | 128 | 16 |
+| **Total** | **166** | **1,203** | **1,121 (93%)** | **391** | **16** |
+
+## Top Deals (Sample)
+
+| Product | Retailer | MSRP | Price | Discount | Stock |
+|---------|----------|------|-------|----------|-------|
+| Apple Watch SE 40mm (Refurb) | Back Market | $169 | $99 | **41.4%** | ✅ |
+| iPhone 14 (Refurb) | Back Market | $529 | $319 | **39.7%** | ✅ |
+| RX 6900 XT | Amazon | $999 | $649 | **35.0%** | ✅ |
+| RTX 3090 | Amazon | $1,499 | $999 | **33.4%** | ✅ |
 
 ## Architecture
 
 ```
-GitHub Actions (cron) → Scraper Engine → Playwright → Amazon/eBay → Backend API
-                                        ↓
-                              Admin Dashboard (manual overrides, alerts)
+┌─────────────────────────────────────────────────────────────┐
+│                    price_monitor.py                         │
+│  ┌─────────────┐              ┌─────────────┐               │
+│  │ TheresMac   │              │  GPU Drip   │               │
+│  │ Backend API │              │ Backend API │               │
+│  └──────┬──────┘              └──────┬──────┘               │
+│         │                            │                       │
+│         └────────────┬───────────────┘                       │
+│                      ▼                                       │
+│              Parse & Compare                                 │
+│         (Price vs MSRP, Stock)                              │
+│                      │                                       │
+│        ┌─────────────┼─────────────┐                       │
+│        ▼             ▼             ▼                       │
+│   JSON File    HTML Dashboard  Console Alerts               │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                     url_checker.py                          │
+│  Fetches URLs from backends → Checks redirects → Reports    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-- **Free tier**: 2000 minutes/month (enough for 6x daily scrapes)
-- **Anti-bot**: User-agent rotation, stealth mode, optional proxy service
-- **Admin**: Web UI for manual price updates and sending price drop alerts
+## API Endpoints
 
-## Setup
+- **TheresMac**: `https://theresmac-backend.fly.dev/api/products`
+- **GPU Drip**: `https://gpudrip-backend-icy-night-2201.fly.dev/api/gpus`
 
-### 1. Fork/Create Repository
+## Data Structures
 
-Push this code to a GitHub repository.
-
-### 2. Configure GitHub Secrets
-
-Go to **Settings → Secrets and variables → Actions**, add:
-
-| Secret | Description | Example |
-|--------|-------------|---------|
-| `THERESMAC_API_URL` | TheresMac backend URL | `https://theresmac-backend.fly.dev` |
-| `GPUDRIP_API_URL` | GPU Drip backend URL | `https://gpudrip-backend.fly.dev` |
-| `THERESMAC_API_KEY` | API key for TheresMac | (from Fly.io secrets) |
-| `GPUDRIP_API_KEY` | API key for GPU Drip | (from Fly.io secrets) |
-| `AMAZON_AFFILIATE_ID` | Amazon affiliate tag | `Theresmac-20` |
-| `EBAY_AFFILIATE_ID` | eBay affiliate ID | `5339142921` |
-| `THERESMAC_PRODUCTS_JSON` | Product URL mappings (see below) | JSON string |
-| `GPUDRIP_PRODUCTS_JSON` | Product URL mappings | JSON string |
-
-**Optional:**
-| `SCRAPER_API_KEY` | ScraperAPI key for proxy service |
-| `SLACK_WEBHOOK_URL` | Slack notifications on failure |
-
-### 3. Product Mapping Format
-
-The `*_PRODUCTS_JSON` secrets should be valid JSON:
-
+### TheresMac Response
 ```json
 {
-  "macbook-air-15-m3-2024": [
-    {"retailer": "amazon", "url": "https://www.amazon.com/dp/B0CX23V2ZK"},
-    {"retailer": "ebay", "url": "https://www.ebay.com/itm/123456789"}
-  ],
-  "macbook-pro-16-m3-max": [
-    {"retailer": "amazon", "url": "https://www.amazon.com/dp/B0BSHF7WHW"}
-  ]
+  "id": "macbook-pro-14-m5",
+  "name": "MacBook Pro 14\"",
+  "sku": "MP5X3LL/A",
+  "msrp": 1999,
+  "prices": {
+    "amazon": {"price": 1949, "inStock": true, "verified": false},
+    "apple": {"price": 1999, "inStock": true, "verified": false},
+    "backmarket": {"price": 1899, "inStock": true, "verified": false}
+  }
 }
 ```
 
-Key = product SKU (must match backend SKU exactly)
-Value = array of {retailer, url} objects
-
-### 4. Manual Run
-
-To trigger manually:
-- Go to **Actions → Scrape Prices**
-- Click **Run workflow**
-- Select project and options
-
-## Backend API Requirements
-
-Your backend must accept POST requests to:
-
-```
-POST /api/products/{sku}/prices
-Content-Type: application/json
-Authorization: Bearer {API_KEY}
-
+### GPU Drip Response
+```json
 {
-  "retailer": "amazon",
-  "price": 1199.00,
-  "currency": "USD",
-  "in_stock": true,
-  "condition": "New",
-  "url": "https://www.amazon.com/dp/...",
-  "scraped_at": 1703980800
+  "id": "rtx-5090",
+  "model": "RTX 5090",
+  "msrp_usd": 1999,
+  "retailers": {
+    "amazon": {"price": 2399, "inStock": false, "verified": false, "url": "..."},
+    "bestbuy": {"price": 2399, "inStock": false, "verified": false, "url": "..."}
+  }
 }
 ```
 
-Expected responses:
-- `200/201/204` = Success
-- `401` = Invalid API key
-- `404` = Product SKU not found
+## Rate Limiting
 
-## Testing Locally
+- **Default delay**: 0.5s between requests (2 req/sec)
+- **Max retries**: 3 attempts with exponential backoff
+- **Base retry delay**: 2s (doubles each retry)
+- **User-Agent**: Standard browser headers
 
-```bash
-# Setup
-pip install -r requirements.txt
-playwright install chromium
+## Deal Thresholds
 
-# Set env vars
-export THERESMAC_API_URL="https://your-backend.fly.dev"
-export THERESMAC_API_KEY="your-key"
-export THERESMAC_PRODUCTS_JSON='{"sku": [{"retailer": "amazon", "url": "..."}]}'
+- **Deal**: Price ≤ 10% below MSRP
+- **Premium**: Price ≥ 15% above MSRP
 
-# Run scraper
-python run_scraper.py --project theresmac
+## Output Files
 
-# With proxy
-python run_scraper.py --project theresmac --proxy
-```
-
-## Anti-Bot Strategy
-
-1. **Stealth Mode**: Playwright with automation detection bypass
-2. **Rate Limiting**: 1 request every 2 seconds minimum
-3. **User-Agent Rotation**: Per-retailer realistic headers
-4. **Proxy Service** (optional): ScraperAPI handles CAPTCHAs
-
-## Proxy Service Options
-
-| Service | Price | Pros |
-|---------|-------|------|
-| ScraperAPI | $49/mo unlimited | Handles CAPTCHAs, easy integration |
-| BrightData | $3/GB pay-as-you-go | Residential IPs, very reliable |
-| Oxylabs | $15/GB | Good for starting, rotating proxies |
-
-To enable: Add `SCRAPER_API_KEY` secret and check "Use proxy" in manual runs.
-
-## Monitoring
-
-- GitHub Actions shows run history
-- Results uploaded as artifacts (7-day retention)
-- Slack notification on failure (optional)
-- Scraper logs in Actions output
+| File | Description |
+|------|-------------|
+| `price_monitor.py` | Main monitoring script |
+| `url_checker.py` | URL validation script |
+| `run_price_monitor.sh` | Manual run wrapper |
+| `price_monitor_results.json` | Machine-readable results |
+| `price_monitor_dashboard.html` | Visual dashboard |
+| `SCHEDULING.md` | Cron/launchd setup guide |
 
 ## Troubleshooting
 
-**"No products configured" error**
-→ Check that `*_PRODUCTS_JSON` secret is valid JSON
+### Timeout Errors
+- Increase `REQUEST_DELAY` in `price_monitor.py`
+- Check backend status at `https://theresmac-backend.fly.dev` and `https://gpudrip-backend-icy-night-2201.fly.dev`
 
-**"CAPTCHA detected" errors**
-→ Enable proxy service or reduce scrape frequency
+### No Deals Showing
+- Adjust `DEAL_THRESHOLD_PERCENT` (default: 10%)
+- Check `price_monitor_results.json` for raw data
 
-**"Connection timeout" errors**
-→ Check backend is running on Fly.io
+### Cron Not Running
+- Check cron logs: `tail -f /tmp/price_monitor.log`
+- Verify script is executable: `chmod +x run_price_monitor.sh`
+- Test manually first: `./run_price_monitor.sh`
 
-**Prices not updating**
-→ Verify API endpoint exists and accepts POST requests
+## Next Steps
 
-## Schedule
+1. **Set up scheduling** - Add cron job for daily runs
+2. **Configure alerts** - Integrate with Telegram/Email for deal notifications
+3. **Historical tracking** - Store results for price history charts
+4. **Retailer expansion** - Add more retailers as they're approved (B&H, Best Buy, Newegg, Walmart)
 
-Current cron: `0 */4 * * *` (every 4 hours)
+## Related Scripts
 
-Change in `.github/workflows/scrape-prices.yml`:
-```yaml
-schedule:
-  - cron: '0 */6 * * *'  # Every 6 hours
-  - cron: '0 */12 * * *' # Every 12 hours
-  - cron: '0 0 * * *'    # Once daily
-```
+- `scraper_engine.py` - Legacy Playwright scraper (still available for manual scraping)
+- `robust_scraper.py` - Scraper with retry logic
+- `api_client.py` - Backend API client for updates
 
-## Admin Dashboard
+---
 
-The admin dashboard (`admin-dashboard/` folder) provides a web UI for:
-
-### Features
-- **Products View**: See all products, price history, last scraped time
-- **Send Alert Button**: Manually send price drop alerts to subscribers
-- **Manual Price Override**: Edit prices when scraper fails
-- **Scraper Logs**: View recent scraper runs and status
-- **Settings**: Change scrape frequency, enable/disable retailers
-
-### Running Admin Dashboard
-
-```bash
-cd admin-dashboard
-npm install
-npm run dev
-```
-
-Open http://localhost:5173
-
-### Deploying Admin Dashboard
-
-```bash
-cd admin-dashboard
-npm install
-npm run build
-fly deploy
-```
-
-### Admin Dashboard API
-
-The dashboard exposes these endpoints:
-- `POST /api/products/:id/price` - Manual price update
-- `POST /api/send-alert` - Send price drop alert
-- `POST /api/scraper/run` - Trigger manual scrape
-- `GET /api/scraper/logs` - View scraper logs
-
-See `admin-dashboard/README.md` for full details.
+Built for Douglas Richman's affiliate sites: **TheresMac** and **GPU Drip**.
