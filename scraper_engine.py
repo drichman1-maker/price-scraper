@@ -61,9 +61,11 @@ class ScraperEngine:
         """Create a new page with retailer-specific context"""
         config = RETAILERS[retailer]
         
-        context = await self.browser.new_context(
-            viewport={"width": 1920, "height": 1080},
-            user_agent=config.headers.get("User-Agent"),
+from config import get_random_user_agent
+
+context = await self.browser.new_context(
+    viewport={"width": 1920, "height": 1080},
+    user_agent=get_random_user_agent(),
             locale="en-US",
             timezone_id="America/New_York",
         )
