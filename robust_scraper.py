@@ -27,11 +27,7 @@ class RobustScraper:
         self.session = requests.Session()
 from config import get_random_user_agent
 
-self.session.headers.update({
-    'User-Agent': get_random_user_agent(),
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-},
+self.session.headers.update({\n            \"User-Agent\": get_random_user_agent(),\n            \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n            \"Accept-Language\": \"en-US,en;q=0.5\",\n        })
 
     def _clean_price(self, price_str: str) -> Optional[float]:
         """Convert price string to float"""
