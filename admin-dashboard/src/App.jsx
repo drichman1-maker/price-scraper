@@ -85,6 +85,62 @@ const RETAILER_LABELS = {
   amazonBaby: 'Amazon Baby',
 };
 
+// ─── Retailer URL Builder ────────────────────────────────────────────────────
+
+const AFFILIATE_IDS = {
+  amazon: 'theresmac-20',
+  ebay: '5339142921',
+};
+
+function buildRetailerUrl(retailer, productId, productName) {
+  const query = encodeURIComponent(productName || productId);
+  switch (retailer) {
+    case 'amazon':
+    case 'amazonBaby':
+      return `https://www.amazon.com/s?k=${query}&tag=${AFFILIATE_IDS.amazon}`;
+    case 'ebay':
+      return `https://www.ebay.com/sch/i.html?_nkw=${query}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=${AFFILIATE_IDS.ebay}`;
+    case 'bestbuy':
+      return `https://www.bestbuy.com/site/searchpage.jsp?st=${query}`;
+    case 'walmart':
+      return `https://www.walmart.com/search?q=${query}`;
+    case 'target':
+      return `https://www.target.com/s?searchTerm=${query}`;
+    case 'bh':
+    case 'bh_photo':
+      return `https://www.bhphotovideo.com/c/search?q=${query}`;
+    case 'adorama':
+      return `https://www.adorama.com/l/?searchinfo=${query}`;
+    case 'newegg':
+      return `https://www.newegg.com/p/pl?d=${query}`;
+    case 'microcenter':
+    case 'micro_center':
+      return `https://www.microcenter.com/search/search_results.aspx?N=&cat=&Ntt=${query}`;
+    case 'cdw':
+      return `https://www.cdw.com/search/?q=${query}`;
+    case 'backmarket':
+      return `https://www.backmarket.com/search?q=${query}`;
+    case 'apple':
+      return `https://www.apple.com/shop/search/${query}`;
+    default:
+      return null;
+  }
+}
+
+function ensureUrls(product, site) {
+  const prices = product.prices || {};
+  const name = product.name || product.model || product.id;
+  const retailers = retailersForSite(site);
+  const updated = { ...prices };
+  for (const r of retailers) {
+    const d = updated[r];
+    if (d && d.price && !d.notCarried && !d.url) {
+      updated[r] = { ...d, url: buildRetailerUrl(r, product.id, name) };
+    }
+  }
+  return { ...product, prices: updated };
+}
+
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const s = {
@@ -443,13 +499,16 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
               <div key={r} style={{ padding: '8px 0', borderBottom: '1px solid #1a1a1a' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500 }}>{label}</span>
+                    {d.url ? (
+                      <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 500, color: '#60a5fa', textDecoration: 'none' }}>
+                        {label} <ExternalLink size={10} style={{ verticalAlign: 'middle' }} />
+                      </a>
+                    ) : (
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>{label}</span>
+                    )}
                     <span style={{ fontSize: 11, color: statusInfo?.color || '#888' }}>
                       {statusInfo?.icon} {statusInfo?.label}
                     </span>
-                    {!isEditing && d.url && (
-                      <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ color: '#666' }}><ExternalLink size={11} /></a>
-                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {isEditing ? (
@@ -898,7 +957,7 @@ export default function App() {
       const list = Array.isArray(data) ? data : data[dataKey] || data.products || [];
       // Normalize GPU Drip format to match TheresMac structure
       if (site === 'gpudrip') {
-        return list.map((g) => ({
+        return list.map((g) => ensureUrls({
           id: g.id,
           name: g.model,
           category: g.brand,
@@ -911,9 +970,9 @@ export default function App() {
               )
             : {},
           _site: site,
-        }));
+        }, site));
       }
-      return list.map((p) => ({ ...p, _site: site }));
+      return list.map((p) => ensureUrls({ ...p, _site: site }, site));
     } catch (err) {
       console.error(`[${site}] Failed to fetch products:`, err);
       return [];
@@ -922,7 +981,7 @@ export default function App() {
 
   const fetchAlerts = useCallback(async () => {
     const results = [];
-    for (const site of ['theresmac', 'gpudrip']) {
+    for (const site of ['theresmac', 'gpudrip', 'healthindex', 'babygear']) {
       try {
         const api = apiForSite(site);
         const key = keyForSite(site);
@@ -940,7 +999,16 @@ export default function App() {
 
   const fetchHistory = useCallback(async () => {
     const results = [];
-    for (const site of ['theresmac', 'gpudrip']) {
+    // Build a product-name lookup per site
+    const nameMap = {};
+    const productSets = { theresmac: tmProducts, gpudrip: gdProducts, healthindex: hiProducts, babygear: bgProducts };
+    for (const [site, prods] of Object.entries(productSets)) {
+      nameMap[site] = {};
+      for (const p of prods) {
+        nameMap[site][p.id] = p.name;
+      }
+    }
+    for (const site of ['theresmac', 'gpudrip', 'healthindex', 'babygear']) {
       try {
         const api = apiForSite(site);
         const key = keyForSite(site);
@@ -948,17 +1016,30 @@ export default function App() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const list = Array.isArray(data) ? data : data.history || data.changes || [];
-        list.forEach((h) => results.push({ ...h, site }));
+        list.forEach((h) => {
+          // Normalize snake_case backend fields → camelCase frontend
+          results.push({
+            ...h,
+            site,
+            productName: h.productName || h.product_name || nameMap[site]?.[h.product_id || h.productId] || h.product_id || h.productId,
+            productId: h.productId || h.product_id,
+            retailer: h.retailer,
+            oldPrice: h.oldPrice ?? h.old_price,
+            newPrice: h.newPrice ?? h.new_price,
+            date: h.date || h.changed_at || h.createdAt || h.created_at,
+            in_stock: h.in_stock ?? h.inStock,
+          });
+        });
       } catch (err) {
         console.error(`[${site}] Failed to fetch price history:`, err);
       }
     }
     return results;
-  }, []);
+  }, [tmProducts, gdProducts, hiProducts, bgProducts]);
 
   const clearHistory = useCallback(async () => {
     const results = [];
-    for (const site of ['theresmac', 'gpudrip']) {
+    for (const site of ['theresmac', 'gpudrip', 'healthindex', 'babygear']) {
       try {
         const api = apiForSite(site);
         const key = keyForSite(site);

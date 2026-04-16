@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from playwright.async_api import async_playwright, Page
 from playwright.async_api import TimeoutError as PlaywrightTimeout
 
-from config import RETAILERS, RATE_LIMIT, get_scraperapi_url
+from config import RETAILERS, RATE_LIMIT, get_scraperapi_url, get_random_user_agent
 
 
 @dataclass
@@ -61,11 +61,9 @@ class ScraperEngine:
         """Create a new page with retailer-specific context"""
         config = RETAILERS[retailer]
         
-from config import get_random_user_agent
-
-context = await self.browser.new_context(
-    viewport={"width": 1920, "height": 1080},
-    user_agent=get_random_user_agent(),
+        context = await self.browser.new_context(
+            viewport={"width": 1920, "height": 1080},
+            user_agent=get_random_user_agent(),
             locale="en-US",
             timezone_id="America/New_York",
         )

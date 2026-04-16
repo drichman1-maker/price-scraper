@@ -2,6 +2,7 @@
 Scraper configuration for TheresMac and GPU Drip
 """
 import os
+import random
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
@@ -17,7 +18,7 @@ class RetailerConfig:
 # Backend API endpoints
 BACKENDS = {
     "theresmac": os.getenv("THERESMAC_API_URL", "https://theresmac-backend.fly.dev"),
-    "gpudrip": os.getenv("GPUDRIP_API_URL", "https://gpudrip-backend.fly.dev"),
+    "gpudrip": os.getenv("GPUDRIP_API_URL", "https://gpudrip-backend-icy-night-2201.fly.dev"),
 }
 
 API_KEYS = {
@@ -37,7 +38,6 @@ RETAILERS = {
             "price_symbol": "span.a-price-symbol",
             "title": "#productTitle",
             "availability": "#availability span",
-            "condition": "#newAccordionRow .a-color-success",  # New condition badge
         },
         headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -53,14 +53,11 @@ RETAILERS = {
         base_url="https://www.ebay.com",
         affiliate_id=os.getenv("EBAY_AFFILIATE_ID", "5339142921"),
         selectors={
-            "price": "span.notranslate",  # Price container
+            "price": "span.notranslate",
             "price_alt": "div.x-price-primary span.ux-textspans",
             "title": "h1.x-item-title-label",
             "title_alt": "#itemTitle",
             "availability": "div.x-availability-status",
-            "availability_alt": "#qtySubTxt",
-            "condition": "span.ux-textspans.ux-textspans--SECONDARY-SUBHEAD",
-            "condition_alt": "#vi-itm-cond",
         },
         headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -81,8 +78,6 @@ RATE_LIMIT = {
     "retry_delay_max": 30,  # seconds
 }
 
-import random
-
 USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -102,16 +97,16 @@ def get_scraperapi_url(target_url: str, premium: bool = False) -> str:
     if not SCRAPER_API_KEY:
         return target_url
     
-    params = f\"api_key={SCRAPER_API_KEY}&url={target_url}\"
+    params = f"api_key={SCRAPER_API_KEY}&url={target_url}"
     if premium:
-        params += \"&premium=true\"
+        params += "&premium=true"
     
-    return f\"{SCRAPER_API_URL}?{params}\"
+    return f"{SCRAPER_API_URL}?{params}"
 
 def validate_config():
-    required = [\"THERESMAC_API_KEY\", \"GPUDRIP_API_KEY\", \"SCRAPER_API_KEY\"]
+    """Validate that required API keys are present. Non-fatal — warns only."""
+    required = ["THERESMAC_API_KEY", "GPUDRIP_API_KEY"]
     missing = [k for k in required if not os.getenv(k)]
     if missing:
-        raise EnvironmentError(f\"Missing API keys: {', '.join(missing)}\")
-
-validate_config()
+        print(f"⚠️  Warning: Missing API keys: {', '.join(missing)}")
+        print("   Set them in .env or environment variables")

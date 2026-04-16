@@ -22,12 +22,16 @@ class ScrapedProduct:
     url: Optional[str] = None
     error: Optional[str] = None
 
+from config import get_random_user_agent
+
 class RobustScraper:
     def __init__(self):
         self.session = requests.Session()
-from config import get_random_user_agent
-
-        self.session.headers.update({\n            "User-Agent": get_random_user_agent(),\n            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",\n            "Accept-Language": "en-US,en;q=0.5",\n        })
+        self.session.headers.update({
+            "User-Agent": get_random_user_agent(),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+        })
 
     def _clean_price(self, price_str: str) -> Optional[float]:
         """Convert price string to float"""
@@ -56,7 +60,8 @@ from config import get_random_user_agent
             html = response.text
 
             # 1. Extract ALL prices using the confirmed pattern
-            price_pattern = r'\$[\d,]+\.\d{2}'
+# Robust Amazon search price (high $, exclude accessories)
+price_pattern = r'\\$[1-9]\\d{3,}\\.\\d{2}'  # $1000+
             raw_prices = re.findall(price_pattern, html)
             prices = [self._clean_price(p) for p in raw_prices if self._clean_price(p) is not None]
 
@@ -110,7 +115,8 @@ from config import get_random_user_agent
             html = response.text
 
             # Extract prices
-            price_pattern = r'\$[\d,]+\.\d{2}'
+# Robust Amazon search price (high $, exclude accessories)
+price_pattern = r'\\$[1-9]\\d{3,}\\.\\d{2}'  # $1000+
             raw_prices = re.findall(price_pattern, html)
             prices = [self._clean_price(p) for p in raw_prices if self._clean_price(p) is not None]
 

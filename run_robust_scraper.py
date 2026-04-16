@@ -11,8 +11,8 @@ from datetime import datetime
 from typing import List, Dict, Optional
 
 # Import our new scraper
-from robust_scraper import RobustScraper, ScrapedProduct
-from api_client import BackendAPIClient
+from robust_scraper import RobustScraper
+# Backend update optional - focus on scraping first
 
 # SKU to Search Query Mapping
 SEARCH_QUERIES = {

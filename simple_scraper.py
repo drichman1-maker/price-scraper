@@ -23,16 +23,22 @@ class ScrapedProduct:
     url: Optional[str] = None
     error: Optional[str] = None
 
+from config import get_random_user_agent
+
 class SimpleScraper:
     """Simple HTTP-based scraper (can use proxies)"""
 
     def __init__(self, use_proxy: bool = False):
         self.use_proxy = use_proxy
         self.session = requests.Session()
-        # Add realistic headers
-from config import get_random_user_agent
-
-        self.session.headers.update({\n            "User-Agent": get_random_user_agent(),\n            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",\n            "Accept-Language": "en-US,en;q=0.5",\n            "Accept-Encoding": "gzip, deflate, br",\n            "DNT": "1",\n            "Connection": "keep-alive",\n        })
+        self.session.headers.update({
+            "User-Agent": get_random_user_agent(),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "DNT": "1",
+            "Connection": "keep-alive",
+        })
 
     def scrape_amazon(self, sku: str, url: str) -> ScrapedProduct:
         """Scrape Amazon using requests (may need proxy)"""
