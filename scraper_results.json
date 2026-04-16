@@ -1,0 +1,175 @@
+{
+  "last_run": "2026-04-15T10:19:34.515038",
+  "theresmac": {
+    "macbook-pro-14-m5": {
+      "dashboard_price": 1949,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 1999,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-14-m5-pro": {
+      "dashboard_price": 2449,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 2499,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-14-m5-max": {
+      "dashboard_price": 3149,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 3199,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-16-m5": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 2499,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-14-m5-1tb": {
+      "dashboard_price": 2349,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 2199,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-16-m5-1tb": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 2699,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-pro-14-m3-refurbished": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 1799,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "macbook-air-13-m2-refurbished": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 799,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    }
+  },
+  "gpudrip": {
+    "rtx-4090": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 1599,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "rtx-4080-super": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 999,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "rtx-4070-ti-super": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 799,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "rtx-4070-super": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 599,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "rtx-4070": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 599,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    },
+    "rx-7900-xtx": {
+      "dashboard_price": null,
+      "scraped_price": null,
+      "in_stock": false,
+      "msrp": 999,
+      "price_difference": null,
+      "percent_change": null,
+      "needs_update": false,
+      "is_deal": false,
+      "title": null,
+      "error": "HTTP 503"
+    }
+  }
+}

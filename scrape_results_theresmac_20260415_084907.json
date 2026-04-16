@@ -1,0 +1,42 @@
+[
+  {
+    "sku": "macbook-pro-14-m5",
+    "retailer": "amazon",
+    "price": 1899.0,
+    "in_stock": true,
+    "title": "MacBook Pro 14 M5",
+    "error": null
+  },
+  {
+    "sku": "macbook-pro-14-m5-1tb",
+    "retailer": "amazon",
+    "price": 33.99,
+    "in_stock": true,
+    "title": "MacBook Pro 14 M5 1TB",
+    "error": null
+  },
+  {
+    "sku": "macbook-pro-14-m5-pro",
+    "retailer": "amazon",
+    "price": 9.99,
+    "in_stock": true,
+    "title": "MacBook Pro 14 M5 Pro",
+    "error": null
+  },
+  {
+    "sku": "macbook-pro-14-m5-pro-1tb",
+    "retailer": "amazon",
+    "price": 33.99,
+    "in_stock": true,
+    "title": "MacBook Pro 14 M5 Pro 1TB",
+    "error": null
+  },
+  {
+    "sku": "macbook-pro-14-m5-max",
+    "retailer": "amazon",
+    "price": 14.25,
+    "in_stock": true,
+    "title": "MacBook Pro 14 M5 Max",
+    "error": null
+  }
+]

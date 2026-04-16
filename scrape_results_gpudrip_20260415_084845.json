@@ -1,0 +1,50 @@
+[
+  {
+    "sku": "rtx-4090",
+    "retailer": "amazon",
+    "price": 1644.99,
+    "in_stock": true,
+    "title": "RTX 4090",
+    "error": null
+  },
+  {
+    "sku": "rtx-4080-super",
+    "retailer": "amazon",
+    "price": 699.99,
+    "in_stock": true,
+    "title": "RTX 4080 Super",
+    "error": null
+  },
+  {
+    "sku": "rtx-4070-ti-super",
+    "retailer": "amazon",
+    "price": 5.99,
+    "in_stock": true,
+    "title": "RTX 4070 Ti Super",
+    "error": null
+  },
+  {
+    "sku": "rtx-4070-super",
+    "retailer": "amazon",
+    "price": 5.99,
+    "in_stock": true,
+    "title": "RTX 4070 Super",
+    "error": null
+  },
+  {
+    "sku": "rtx-4070",
+    "retailer": "amazon",
+    "price": 499.99,
+    "in_stock": true,
+    "title": "RTX 4070",
+    "error": null
+  },
+  {
+    "sku": "rx-7900-xtx",
+    "retailer": "amazon",
+    "price": 24.1,
+    "in_stock": true,
+    "title": "RX 7900 XTX",
+    "error": null
+  }
+]
