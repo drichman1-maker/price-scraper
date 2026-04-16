@@ -15,6 +15,8 @@ import {
   ArrowDownRight,
   RefreshCw,
   Download,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -266,12 +268,14 @@ function exportHistoryCSV(history) {
 
 // ─── StatsCards ───────────────────────────────────────────────────────────────
 
-function StatsCards({ tmCount, gdCount, alertCount, verificationCount }) {
+function StatsCards({ tmCount, gdCount, hiCount, bgCount, alertCount, verificationCount }) {
   const cards = [
-    { label: 'TheresMac Products', value: tmCount, color: '#3b82f6' },
-    { label: 'GPU Drip GPUs', value: gdCount, color: '#ec4899' },
-    { label: 'Total Alerts', value: alertCount, color: '#f59e0b' },
-    { label: 'Needs Verification', value: verificationCount, color: '#ef4444' },
+    { label: 'TheresMac', value: tmCount, color: '#3b82f6' },
+    { label: 'GPU Drip', value: gdCount, color: '#ec4899' },
+    { label: 'Health Index', value: hiCount, color: '#22c55e' },
+    { label: 'Baby Gear', value: bgCount, color: '#a855f7' },
+    { label: 'Alerts', value: alertCount, color: '#f59e0b' },
+    { label: 'Verify', value: verificationCount, color: '#ef4444' },
   ];
 
   return (
@@ -292,8 +296,17 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
   const [expanded, setExpanded] = useState(false);
   const [editingRetailer, setEditingRetailer] = useState(null);
   const [editPrice, setEditPrice] = useState('');
+  const [editUrl, setEditUrl] = useState('');
+  const [editStatus, setEditStatus] = useState('in_stock');
   const [editingMsrp, setEditingMsrp] = useState(false);
   const [editMsrpVal, setEditMsrpVal] = useState('');
+
+  const editStatusMap = {
+    in_stock: { icon: '✅', label: 'In Stock', color: '#10b981' },
+    out_stock: { icon: '❌', label: 'OOS', color: '#ef4444' },
+    backordered: { icon: '⏳', label: 'BO', color: '#f59e0b' },
+    not_carried: { icon: '🚫', label: 'NC', color: '#6b7280' },
+  };
 
   const prices = product.prices || {};
   const retailers = retailersForSite(site);
@@ -305,16 +318,32 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
   const msrp = product.msrp;
   const discount = msrp && bestPrice ? Math.round(((msrp - bestPrice) / msrp) * 100) : null;
 
+  const getStatus = (d) => {
+    if (!d) return 'out_stock';
+    if (d.notCarried) return 'not_carried';
+    if (d.inStock === false) return 'out_stock';
+    return 'in_stock';
+  };
+
   const startEdit = (retailer, currentPrice) => {
+    const entry = prices[retailer] || {};
     setEditingRetailer(retailer);
     setEditPrice(String(currentPrice));
+    setEditUrl(entry.url || '');
+    setEditStatus(getStatus(entry));
   };
 
   const saveEdit = async (retailer) => {
     const newPrice = parseFloat(editPrice);
     if (isNaN(newPrice)) return;
-    const entry = prices[retailer] || {};
-    await onPriceUpdate(product.id, retailer, newPrice, entry.inStock !== false, entry.url || '', !!entry.notCarried);
+    const statusMap = {
+      in_stock: [true, false],
+      out_stock: [false, false],
+      backordered: [true, false],
+      not_carried: [false, true],
+    };
+    const [newInStock, newNotCarried] = statusMap[editStatus] || [true, false];
+    await onPriceUpdate(product.id, retailer, newPrice, newInStock, editUrl, newNotCarried);
     setEditingRetailer(null);
   };
 
@@ -376,6 +405,15 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
         )}
       </div>
 
+      {/* Specs */}
+      {product.specs && Object.keys(product.specs).length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+          {Object.entries(product.specs).map(([k, v]) => (
+            v ? <span key={k} style={{ fontSize: 11, color: '#888', backgroundColor: '#1a1a1a', padding: '2px 6px', borderRadius: 4 }}>{k}: {String(v)}</span> : null
+          ))}
+        </div>
+      )}
+
       {/* Expand toggle */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -399,36 +437,64 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
               );
             }
             const isEditing = editingRetailer === r;
+            const status = getStatus(d);
+            const statusInfo = editStatusMap[status];
             return (
-              <div key={r} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #1a1a1a' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 13 }}>{label}</span>
-                  {d.inStock === false && <span style={{ ...s.badge, backgroundColor: '#7f1d1d', color: '#fca5a5' }}>OOS</span>}
-                  {d.url && (
-                    <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ color: '#666' }}><ExternalLink size={11} /></a>
-                  )}
+              <div key={r} style={{ padding: '8px 0', borderBottom: '1px solid #1a1a1a' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500 }}>{label}</span>
+                    <span style={{ fontSize: 11, color: statusInfo?.color || '#888' }}>
+                      {statusInfo?.icon} {statusInfo?.label}
+                    </span>
+                    {!isEditing && d.url && (
+                      <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ color: '#666' }}><ExternalLink size={11} /></a>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {isEditing ? (
+                      <>
+                        <input
+                          type="number"
+                          value={editPrice}
+                          onChange={(e) => setEditPrice(e.target.value)}
+                          style={{ ...s.input, width: 80, padding: '3px 6px', fontSize: 13 }}
+                          autoFocus
+                          onKeyDown={(e) => e.key === 'Enter' && saveEdit(r)}
+                        />
+                        <button onClick={() => saveEdit(r)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4ade80', padding: 0 }}><Check size={14} /></button>
+                        <button onClick={() => setEditingRetailer(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: 0, fontSize: 14 }}>✕</button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: 14, fontWeight: 500 }}>{fmt(d.price)}</span>
+                        <button onClick={() => startEdit(r, d.price)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666', padding: 0 }}><Pen size={12} /></button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {isEditing ? (
-                    <>
-                      <input
-                        type="number"
-                        value={editPrice}
-                        onChange={(e) => setEditPrice(e.target.value)}
-                        style={{ ...s.input, width: 80, padding: '3px 6px', fontSize: 13 }}
-                        autoFocus
-                        onKeyDown={(e) => e.key === 'Enter' && saveEdit(r)}
-                      />
-                      <button onClick={() => saveEdit(r)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4ade80', padding: 0 }}><Check size={14} /></button>
-                      <button onClick={() => setEditingRetailer(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: 0, fontSize: 14 }}>✕</button>
-                    </>
-                  ) : (
-                    <>
-                      <span style={{ fontSize: 14, fontWeight: 500 }}>{fmt(d.price)}</span>
-                      <button onClick={() => startEdit(r, d.price)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666', padding: 0 }}><Pen size={12} /></button>
-                    </>
-                  )}
-                </div>
+                {isEditing && (
+                  <div style={{ marginTop: 4 }}>
+                    <input
+                      type="text"
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="Product URL"
+                      style={{ ...s.input, width: '100%', padding: '3px 6px', fontSize: 11, color: '#aaa' }}
+                      onKeyDown={(e) => e.key === 'Enter' && saveEdit(r)}
+                    />
+                    <select
+                      value={editStatus}
+                      onChange={(e) => setEditStatus(e.target.value)}
+                      style={{ ...s.input, fontSize: 12, padding: '4px 8px', marginTop: 4 }}
+                    >
+                      <option value="in_stock">In Stock</option>
+                      <option value="out_stock">Out of Stock</option>
+                      <option value="backordered">Backordered</option>
+                      <option value="not_carried">Not Carried</option>
+                    </select>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -440,7 +506,7 @@ function ProductCard({ product, site, onPriceUpdate, onMsrpUpdate }) {
 
 // ─── ProductList ──────────────────────────────────────────────────────────────
 
-function ProductList({ tmProducts, gdProducts, siteFilter, onPriceUpdate, onMsrpUpdate }) {
+function ProductList({ tmProducts, gdProducts, hiProducts, bgProducts, siteFilter, onPriceUpdate, onMsrpUpdate }) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState('price');
@@ -449,11 +515,15 @@ function ProductList({ tmProducts, gdProducts, siteFilter, onPriceUpdate, onMsrp
   const allProducts = [
     ...tmProducts.map((p) => ({ ...p, _site: 'theresmac' })),
     ...gdProducts.map((p) => ({ ...p, _site: 'gpudrip' })),
+    ...hiProducts.map((p) => ({ ...p, _site: 'healthindex' })),
+    ...bgProducts.map((p) => ({ ...p, _site: 'babygear' })),
   ];
 
   const filtered = allProducts.filter((p) => {
     if (siteFilter === 'theresmac' && p._site !== 'theresmac') return false;
     if (siteFilter === 'gpudrip' && p._site !== 'gpudrip') return false;
+    if (siteFilter === 'healthindex' && p._site !== 'healthindex') return false;
+    if (siteFilter === 'babygear' && p._site !== 'babygear') return false;
     if (category !== 'all' && p.category !== category) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -491,39 +561,39 @@ function ProductList({ tmProducts, gdProducts, siteFilter, onPriceUpdate, onMsrp
   return (
     <div>
       {/* Controls */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12, alignItems: 'center' }}>
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ ...s.input, flex: 1, minWidth: 200 }}
+          style={{ ...s.input, flex: 1, minWidth: 120 }}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} style={s.input}>
-          <option value="all">All Categories</option>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...s.input, minWidth: 0 }}>
+          <option value="all">All</option>
           {activeCategories.map((c) => (
             <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
           ))}
         </select>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {['price', 'msrp', 'name', 'discount'].map((col) => (
-            <button
-              key={col}
-              onClick={() => toggleSort(col)}
-              style={sortBy === col ? s.btnActive : s.btn}
-            >
-              {col.charAt(0).toUpperCase() + col.slice(1)}
-              {sortBy === col && (sortDir === 'asc' ? ' ↑' : ' ↓')}
-            </button>
-          ))}
-        </div>
         <button
           onClick={() => exportProductsCSV(filtered)}
-          style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 6 }}
-          title="Export products to CSV"
+          style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, padding: '6px 10px', fontSize: 12 }}
+          title="Export CSV"
         >
-          <Download size={14} /> Export CSV
+          <Download size={12} /> CSV
         </button>
+      </div>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, flexWrap: 'wrap' }}>
+        {['price', 'msrp', 'name', 'discount'].map((col) => (
+          <button
+            key={col}
+            onClick={() => toggleSort(col)}
+            style={{ ...(sortBy === col ? s.btnActive : s.btn), padding: '5px 10px', fontSize: 12 }}
+          >
+            {col.charAt(0).toUpperCase() + col.slice(1)}
+            {sortBy === col && (sortDir === 'asc' ? ' ↑' : ' ↓')}
+          </button>
+        ))}
       </div>
 
       {/* Results count */}
@@ -574,7 +644,7 @@ function AlertsTab({ alerts, siteFilter, onTest, onDelete }) {
           style={{ ...s.btn, display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}
           title="Export alerts to CSV"
         >
-          <Download size={14} /> Export CSV
+          <Download size={14} /> CSV
         </button>
       </div>
 
@@ -748,17 +818,23 @@ function PriceHistoryTab({ history, siteFilter, onClear }) {
 
 // ─── SettingsTab ──────────────────────────────────────────────────────────────
 
-function SettingsTab({ tmProducts, gdProducts, alerts, history }) {
+function SettingsTab({ tmProducts, gdProducts, hiProducts, bgProducts, alerts, history }) {
   const config = [
     { label: 'TheresMac API', value: THERESMAC_API },
     { label: 'TheresMac Key', value: THERESMAC_KEY ? `${THERESMAC_KEY.slice(0, 6)}...${THERESMAC_KEY.slice(-4)}` : 'Not set' },
     { label: 'GPU Drip API', value: GPUDRIP_API },
     { label: 'GPU Drip Key', value: GPUDRIP_KEY ? `${GPUDRIP_KEY.slice(0, 6)}...${GPUDRIP_KEY.slice(-4)}` : 'Not set' },
+    { label: 'Health Index API', value: HEALTHINDEX_API },
+    { label: 'Health Index Key', value: HEALTHINDEX_KEY ? `${HEALTHINDEX_KEY.slice(0, 6)}...${HEALTHINDEX_KEY.slice(-4)}` : 'Not set' },
+    { label: 'Baby Gear API', value: BABYGEAR_API },
+    { label: 'Baby Gear Key', value: BABYGEAR_KEY ? `${BABYGEAR_KEY.slice(0, 6)}...${BABYGEAR_KEY.slice(-4)}` : 'Not set' },
   ];
 
   const counts = [
     { label: 'TheresMac Products', value: tmProducts.length },
     { label: 'GPU Drip Products', value: gdProducts.length },
+    { label: 'Health Index Products', value: hiProducts.length },
+    { label: 'Baby Gear Products', value: bgProducts.length },
     { label: 'Alerts', value: alerts.length },
     { label: 'Price Changes', value: history.length },
   ];
@@ -801,6 +877,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('products');
   const [tmProducts, setTmProducts] = useState([]);
   const [gdProducts, setGdProducts] = useState([]);
+  const [hiProducts, setHiProducts] = useState([]);
+  const [bgProducts, setBgProducts] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -902,14 +980,18 @@ export default function App() {
     if (showSpinner) setLoading(true);
     setRefreshing(true);
     try {
-      const [tm, gd, alertData, historyData] = await Promise.all([
+      const [tm, gd, hi, bg, alertData, historyData] = await Promise.all([
         fetchProducts('theresmac'),
         fetchProducts('gpudrip'),
+        fetchProducts('healthindex'),
+        fetchProducts('babygear'),
         fetchAlerts(),
         fetchHistory(),
       ]);
       setTmProducts(tm);
       setGdProducts(gd);
+      setHiProducts(hi);
+      setBgProducts(bg);
       setAlerts(alertData);
       setHistory(historyData);
     } finally {
@@ -1033,13 +1115,17 @@ export default function App() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Affiliate Admin Dashboard</h1>
-            <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>Manage TheresMac & GPU Drip</p>
+            <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>TheresMac · GPU Drip · Health Index · Baby Gear</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', gap: 12, fontSize: 13 }}>
-              <span style={{ color: '#60a5fa' }}>TM: {tmProducts.length}</span>
+              <span style={{ color: '#3b82f6' }}>TM: {tmProducts.length}</span>
               <span style={{ color: '#666' }}>|</span>
-              <span style={{ color: '#f472b6' }}>GD: {gdProducts.length}</span>
+              <span style={{ color: '#ec4899' }}>GD: {gdProducts.length}</span>
+              <span style={{ color: '#666' }}>|</span>
+              <span style={{ color: '#22c55e' }}>HI: {hiProducts.length}</span>
+              <span style={{ color: '#666' }}>|</span>
+              <span style={{ color: '#a855f7' }}>BG: {bgProducts.length}</span>
             </div>
             <button onClick={() => loadAll(false)} style={s.btn} title="Refresh data">
               <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none', verticalAlign: 'middle' }} />
@@ -1052,14 +1138,14 @@ export default function App() {
       {/* Site Toggle + Tabs */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px 0' }}>
         {/* Site filter toggle */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {['all', 'theresmac', 'gpudrip', 'healthindex', 'babygear'].map((f) => (
             <button
               key={f}
               onClick={() => setSiteFilter(f)}
-              style={siteFilter === f ? s.btnActive : s.btn}
+              style={{ ...(siteFilter === f ? s.btnActive : s.btn), padding: '6px 12px', fontSize: 12 }}
             >
-              {f === 'all' ? 'All Sites' : siteLabel(f)}
+              {f === 'all' ? 'All' : siteOf(f)}
             </button>
           ))}
         </div>
@@ -1099,6 +1185,8 @@ export default function App() {
           <StatsCards
             tmCount={tmProducts.length}
             gdCount={gdProducts.length}
+            hiCount={hiProducts.length}
+            bgCount={bgProducts.length}
             alertCount={alerts.length}
             verificationCount={verificationCount}
           />
@@ -1116,6 +1204,8 @@ export default function App() {
               <ProductList
                 tmProducts={tmProducts}
                 gdProducts={gdProducts}
+                hiProducts={hiProducts}
+                bgProducts={bgProducts}
                 siteFilter={siteFilter}
                 onPriceUpdate={handlePriceUpdate}
                 onMsrpUpdate={handleMsrpUpdate}
@@ -1140,6 +1230,8 @@ export default function App() {
               <SettingsTab
                 tmProducts={tmProducts}
                 gdProducts={gdProducts}
+                hiProducts={hiProducts}
+                bgProducts={bgProducts}
                 alerts={alerts}
                 history={history}
               />
