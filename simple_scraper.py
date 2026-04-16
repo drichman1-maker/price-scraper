@@ -32,7 +32,7 @@ class SimpleScraper:
         # Add realistic headers
 from config import get_random_user_agent
 
-self.session.headers.update({\n            \"User-Agent\": get_random_user_agent(),\n            \"Accept\": \"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\n            \"Accept-Language\": \"en-US,en;q=0.5\",\n            \"Accept-Encoding\": \"gzip, deflate, br\",\n            \"DNT\": \"1\",\n            \"Connection\": \"keep-alive\",\n        })
+        self.session.headers.update({\n            "User-Agent": get_random_user_agent(),\n            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",\n            "Accept-Language": "en-US,en;q=0.5",\n            "Accept-Encoding": "gzip, deflate, br",\n            "DNT": "1",\n            "Connection": "keep-alive",\n        })
 
     def scrape_amazon(self, sku: str, url: str) -> ScrapedProduct:
         """Scrape Amazon using requests (may need proxy)"""

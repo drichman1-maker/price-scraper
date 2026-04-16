@@ -98,7 +98,7 @@ SCRAPER_API_KEY = os.getenv("SCRAPER_API_KEY")
 SCRAPER_API_URL = "http://api.scraperapi.com"
 
 def get_scraperapi_url(target_url: str, premium: bool = False) -> str:
-    \"\"\"Get ScraperAPI URL with authentication\"\"\"
+    """Get ScraperAPI URL with authentication"""
     if not SCRAPER_API_KEY:
         return target_url
     
